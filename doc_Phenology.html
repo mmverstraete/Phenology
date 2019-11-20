@@ -1,0 +1,782 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+   <head>
+      <meta http-equiv="content-type" content="text/html; charset=utf-8">
+      <title>Documentation for the IDL routines in project Phenology</title>
+   </head>
+<body>
+<h1>Documentation for the IDL routines in project Phenology</h1>
+<h2>fit_dsf</h2>
+<ul>
+<li><p><strong>Purpose:</strong> This function serves as a wrapper to the IDL function <code>CURVEFIT</code>: it fits a user-supplied procedure <code>model_p</code> to a series of data points and optionally plots the results.</p></li>
+<li><p><strong>Algorithm:</strong> This function fits the user-supplied procedure <code>model_p</code> to a set of points defined by the input positional parameters <code>x</code> and <code>y</code>, given prior values of the model parameters <code>params</code>. Upon completion of the processing , this array contains the posterior values of those parameters.</p></li>
+<li><p><strong>Syntax:</strong> <code>rc = fit_dsf(x, y, model_p, params, $</code><br />
+<code>FROM_X = from_x, TO_X = to_x, $</code><br />
+<code>ITMAX = itmax, ITER = iter, $</code><br />
+<code>WEIGHTS = weights, NODERIVATIVE = noderivative, $</code><br />
+<code>TOL = tol, CHISQ = chisq, $</code><br />
+<code>YERROR = yerror, STATUS = status, $</code><br />
+<code>PLOT_IT = plot_it, PLOT_FOLDER = plot_folder, $</code><br />
+<code>DOUBLE = double, VERBOSE = verbose, $</code><br />
+<code>DEBUG = debug, EXCPT_COND = excpt_cond</code></p></li>
+<li><p><strong>Positional parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>x {FLOAT array} [I]:</code> The abscissas of the measurements to which the model must be fitted.</p></li>
+<li><p><code>y {FLOAT array} [I]:</code> The ordinates of the measurements to which the model must be fitted.</p></li>
+<li><p><code>model_p {STRING} [I]:</code> The name of the IDL procedure that computes the value of the model at argument <code>x</code>.</p></li>
+<li><p><code>params {FLOAT array} [I/O]:</code> The array of 7 parameters of the <code>pd_hytg_p</code> procedure. On input, <code>params</code> contains the prior values, on output it contains the posterior estimates.</p></li>
+</ul></li>
+<li><p><strong>Keyword parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>FROM_X = from_x {FLOAT} [I]:</code> The smallest value of the independent variable (abscissa) to consider in the plotting of the results.</p></li>
+<li><p><code>TO_X = to_x {FLOAT} [I]:</code> The largest value of the independent variable (abscissa) to consider in the plotting of the results.</p></li>
+<li><p><code>ITMAX = itmax {INT} [I]:</code> The maximum allowed number of iterations in the inversion process.</p></li>
+<li><p><code>ITER = iter {INT} [O]:</code> The actual number of iterations in the inversion process.</p></li>
+<li><p><code>WEIGHTS = weights {FLOAT array} [I]:</code> The array of weights to be assigned to the measurements. If the standard deviation <code>STD</code> applicable to each measurement is known, then <code>weight = 1/STD</code>. If the measurement uncertainty is unknow, set all <code>weights</code> to <code>1.0</code>. Set the weight to <code>0.0</code> if a measurement should not be considered in the inversion process.</p></li>
+<li><p><code>NODERIVATIVE = noderivative{INT} [I]:</code> Flag to calculate the derivatives numerically (<code>1</code>) or symbolically (<code>0</code>).</p></li>
+<li><p><code>TOL = tol {FLOAT} [I]:</code> The convergence tolerance: the iterative inversion process is stopped when the change in <span class="math inline"><em>&#967;</em><sup>2</sup></span> becomes smaller that this tolerance.</p></li>
+<li><p><code>CHISQ = chisq {FLOAT} [O]:</code> The <span class="math inline"><em>&#967;</em><sup>2</sup></span> statistics describing the degree of fitness between the model and the data.</p></li>
+<li><p><code>YERROR = yerror {FLOAT} [O]:</code> The standard error between the model and the data.</p></li>
+<li><p><code>STATUS = status {INT} [O]:</code> The indicator of the inversion outcome: if <code>status = 0</code>, the inversion process was successful, if <code>status = 1</code>, the inversion process aborted because <span class="math inline"><em>&#967;</em><sup>2</sup></span> kept increasing without bounds, and if <code>status = 2</code>, the inversion process did not converge satisfactorily after <code>itmax</code> iterations.</p></li>
+<li><p><code>PLOT_IT = plot_it{INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) generating plots (e.g., of time series).</p></li>
+<li><p><code>PLOT_FOLDER = plot_folder {STRING} [I]:</code> The directory address of the output folder containing the plots (e.g., of time series), if different from the value implied by the default set by function <code>set_roots_vers.pro)</code> and the routine arguments.</p></li>
+<li><p><code>DOUBLE = double {INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) computing in double precision.</p></li>
+<li><p><code>VERBOSE = verbose {INT} [I] (Default value: 0):</code> Flag to enable (&gt; 0) or skip (0) outputting messages on the console:</p>
+<ul>
+<li><p>If <code>verbose &gt; 0</code>, messages inform the user about progress in the execution of time-consuming routines, or the location of output files (e.g., log, map, plot, etc.);</p></li>
+<li><p>If <code>verbose &gt; 1</code>, messages record entering and exiting the routine; and</p></li>
+<li><p>If <code>verbose &gt; 2</code>, messages provide additional information about intermediary results.</p></li>
+</ul></li>
+<li><p><code>DEBUG = debug {INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) debugging tests.</p></li>
+<li><p><code>EXCPT_COND = excpt_cond {STRING} [O] (Default value: &#8221;):</code> Description of the exception condition if one has been encountered, or a null string otherwise.</p></li>
+</ul></li>
+<li><p><strong>Returned value type:</strong> <code>INT</code>.</p></li>
+<li><p><strong>Outcome:</strong></p>
+<ul>
+<li><p>If no exception condition has been detected, this function returns <code>0</code>, and the output keyword parameter <code>excpt_cond</code> is set to a null string, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided in the call. The output positional parameter <code>params</code> contains the results generated by this function.</p></li>
+<li><p>If an exception condition has been detected, this function returns a non-zero error code, and the output keyword parameter <code>excpt_cond</code> contains a message about the exception condition encountered, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided. The output positional parameter <code>params</code> may be incorrect.</p></li>
+</ul></li>
+<li><p><strong>Exception conditions:</strong></p>
+<ul>
+<li><p>Error 100: One or more positional parameter(s) are missing.</p></li>
+<li><p>Error 110: The input positional parameter <code>x</code> is not a numeric array with at least 10 elements.</p></li>
+<li><p>Error 120: The input positional parameter <code>y</code> is not a numeric array with at least 10 elements.</p></li>
+<li><p>Error 130: The input positional parameters <code>x</code> and <code>y</code> are of different sizes.</p></li>
+<li><p>Error 140: The input positional parameter <code>model_p</code> is not a string.</p></li>
+<li><p>Error 150: The input positional parameter <code>params</code> is not a numeric array of 7 elements.</p></li>
+<li><p>Error 160: The input keyword parameter <code>weights</code> is not a numeric array with at least 10 elements.</p></li>
+<li><p>Error 170: The input positional parameter <code>x</code> and the input keyword parameter <code>weights</code> are of different sizes.</p></li>
+<li><p>Error 199: An exception condition occurred in <code>set_roots_vers.pro</code>.</p></li>
+<li><p>Error 299: Computer is unrecognized, function <code>set_roots_vers.pro</code> did not assign default folder values, and the optional keyword parameter <code>plot_folder</code> is not specified.</p></li>
+<li><p>Error 500: The inversion procedure did not converge.</p></li>
+<li><p>Error 502: The inversion procedure did not converge after <code>itmax</code> iterations.</p></li>
+<li><p>Error 509: Unrecognized status code returned from <code>CURVEFIT</code>.</p></li>
+</ul></li>
+<li><p><strong>Dependencies:</strong></p>
+<ul>
+<li><p>The IDL procedure named <code>model_p.pro</code></p></li>
+<li><p><code>is_array.pro</code></p></li>
+<li><p><code>is_numeric.pro</code></p></li>
+<li><p><code>is_string.pro</code></p></li>
+<li><p><code>plt_dsf.pro</code></p></li>
+<li><p><code>round_dec.pro</code></p></li>
+<li><p><code>set_roots_vers.pro</code></p></li>
+<li><p><code>strcat.pro</code></p></li>
+<li><p><code>strstr.pro</code></p></li>
+</ul></li>
+<li><p><strong>Remarks:</strong></p>
+<ul>
+<li><p><strong>Note 1:</strong> The outcome of this function is quite sensitive to the numer of data points (the more, the better) and to the prior values contained in <code>params</code> upon input.</p></li>
+</ul></li>
+<li><p><strong>Examples:</strong></p>
+<pre><code>[Insert the command and its outcome]</code></pre></li>
+<li><p><strong>References:</strong></p>
+<ul>
+<li><p>Michel M. Verstraete (2019) <em>User Manual for the <code>Phenology</code> package</em>.</p></li>
+</ul></li>
+<li><p><strong>Versioning:</strong></p>
+<ul>
+<li><p>2010&#8211;02&#8211;19: Version 0.9 &#8212; Initial release.</p></li>
+<li><p>2012&#8211;05&#8211;24: Version 1.0 &#8212; Initial public release.</p></li>
+<li><p>2019&#8211;11&#8211;06: Version 2.0.0 &#8212; Update the code to accept an arbitrary (user-provided) model to be fitted, update the documentation and adopt the current coding standards.</p></li>
+<li><p>2019&#8211;11&#8211;18: Version 2.0.1 &#8212; Update the code to optionally plot the model and the data with the prior and the posterior parameters, and add the reference to the <em>User Manual</em>.</p></li>
+</ul></li>
+</ul>
+<h2>pd_gaus_f</h2>
+<ul>
+<li><p><strong>Purpose:</strong> This IDL function returns the value of the Parametric Double Gaussian Function at argument <code>x</code>, given the array <code>params</code> of 7 parameters, and provides the values of its 2 S-shaped functional components in the output positional parameters <code>pgf1</code> and <code>pgf2</code>.</p></li>
+<li><p><strong>Algorithm:</strong> Given the input positional parameters <code>x</code> (scalar or array) and the array <code>params</code> of 7 parameters, this function computes the value of the Parametric Double Gaussian Function (PDGF) and the 2 components <code>pgf1</code> and <code>pgf2</code>.</p></li>
+<li><p><strong>Syntax:</strong> <code>res = pd_gaus_f(x, params, pgf1, pgf2, $</code><br />
+<code>DOUBLE = double, DEBUG = debug, EXCPT_COND = excpt_cond)</code></p></li>
+<li><p><strong>Positional parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>x {FLOAT scalar or array} [I]:</code> The argument of the <code>pd_gaus_f</code> function.</p></li>
+<li><p><code>params {FLOAT array} [I]:</code> The array of 7 parameters of the <code>pd_gaus_f</code> function.</p></li>
+<li><p><code>pgf1 {FLOAT scalar or array} [O]:</code> The value of the first Parametric Gaussian Function at argument <code>x</code> on the basis of parameters <code>params[1]</code> to <code>params[3]</code>.</p></li>
+<li><p><code>pgf2 {FLOAT scalar or array} [O]:</code> The value of the second Parametric Gaussian Function at argument <code>x</code> on the basis of parameters <code>params[4]</code> to <code>params[6]</code>.</p></li>
+</ul></li>
+<li><p><strong>Keyword parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>DOUBLE = double {INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) computing in double precision.</p></li>
+<li><p><code>DEBUG = debug {INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) debugging tests.</p></li>
+<li><p><code>EXCPT_COND = excpt_cond {STRING} [O] (Default value: &#8221;):</code> Description of the exception condition if one has been encountered, or a null string otherwise.</p></li>
+</ul></li>
+<li><p><strong>Returned value type:</strong> <code>FLOAT</code> (scalar or array).</p></li>
+<li><p><strong>Outcome:</strong></p>
+<ul>
+<li><p>If no exception condition has been detected, this function returns the scalar or array value <code>res</code> of the Parametric Double Gaussian Function function at argument <code>x</code>, given the array of 7 parameters <code>params</code>. The output positional parameters <code>pgf1</code> and <code>pgf2</code> provide the values of the 2 constitutive contributions for the same argument. The output keyword parameter <code>excpt_cond</code> is set to a null string, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided in the call.</p></li>
+<li><p>If an exception condition has been detected, the return value <code>res</code> and the values of the output positional parameters <code>pgf1</code> and <code>pgf2</code> may be incorrect. The output keyword parameter <code>excpt_cond</code> contains a message about the exception condition encountered, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided.</p></li>
+</ul></li>
+<li><p><strong>Exception conditions:</strong></p>
+<ul>
+<li><p>Error 100: One or more positional parameter(s) are missing.</p></li>
+<li><p>Error 110: The input positional parameter <code>x</code> must be numeric.</p></li>
+<li><p>Error 120: The input positional parameter <code>params</code> must be a numeric array of 7 elements.</p></li>
+</ul></li>
+<li><p><strong>Dependencies:</strong></p>
+<ul>
+<li><p><code>is_array.pro</code></p></li>
+<li><p><code>is_numeric.pro</code></p></li>
+<li><p><code>strstr.pro</code></p></li>
+</ul></li>
+<li><p><strong>Remarks:</strong></p>
+<ul>
+<li><p><strong>Note 1:</strong> This routine does not provide the partial derivatives of the Parametric Double Gaussian Function with respect to the model parameters; use the procedure <code>pd_gaus_p</code> for that purpose.</p></li>
+<li><p><strong>Note 2:</strong> Set the optional input keyword parameter <code>DOUBLE</code> to carry out all computations in double precision.</p></li>
+<li><p><strong>Note 3:</strong> If the input positional parameters <code>x</code> is an array, the return value <code>res</code> and the output positional parameters <code>pgf1</code> and <code>pgf2</code> will also be arrays of the same dimensions.</p></li>
+<li><p><strong>Note 4:</strong> The asymptotic value of <code>pd_gaus_f</code> when <span class="math inline"><em>x</em>&#8196;&#8594;&#8196;&#8197;+&#8197;&#8734;</span> is <code>params[0]</code> <span class="math inline">+</span> <code>params[1]</code> <span class="math inline">+</span> <code>params[4]</code>.</p></li>
+</ul></li>
+<li><p><strong>Examples:</strong></p>
+<pre><code>IDL&gt; x = 7.0
+IDL&gt; params = [0.3, 2.0, 10.0, 2.5, -2.2, 14.0, 5.0]
+IDL&gt; res = pd_gaus_f(x, params, pgf1, pgf2, $
+   DEBUG = debug, EXCPT_COND = excpt_cond)
+IDL&gt; PRINT, &#39;res = &#39; + strstr(res)
+res = 1.27350</code></pre></li>
+<li><p><strong>References:</strong></p>
+<ul>
+<li><p>Michel M. Verstraete (2019) <em>User Manual for the <code>Phenology</code> package</em>.</p></li>
+<li><p>URL: <code>https://en.wikipedia.org/wiki/Normal_distribution</code>, accessed on 2019&#8211;11&#8211;01.</p></li>
+</ul></li>
+<li><p><strong>Versioning:</strong></p>
+<ul>
+<li><p>2019&#8211;10&#8211;05: Version 1.0 &#8212; Initial public release, as a function returning an error code.</p></li>
+<li><p>2019&#8211;11&#8211;04: Version 2.0.0 &#8212; Modify the code to return the function value instead of an error code, update the documentation and adopt the current coding standards.</p></li>
+<li><p>2019&#8211;11&#8211;18: Version 2.0.1 &#8212; Remove the detailed mathematical description of the algorithm from the IDL function and add it to the <em>User Manual</em>, add the reference to that manual.</p></li>
+</ul></li>
+</ul>
+<h2>pd_gaus_p</h2>
+<ul>
+<li><p><strong>Purpose:</strong> This IDL procedure computes the values of the Parametric Double Gaussian Function and of its partial derivatives with respect to the model parameters at argument <code>x</code>.</p></li>
+<li><p><strong>Algorithm:</strong> Given the input positional parameters <code>x</code> (scalar or array) and the array <code>params</code> of 7 parameters, this function computes the value <code>pdgp</code> of the Parametric Double Gaussian Function (PDGF) and the values <code>pder</code> of the partial derivatives of that function with respect to those parameters.</p></li>
+<li><p><strong>Syntax:</strong> <code>pd_gaus_p, x, params, pdgp, pder, $</code><br />
+<code>DOUBLE = double, DEBUG = debug, EXCPT_COND = excpt_cond</code></p></li>
+<li><p><strong>Positional parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>x {FLOAT scalar or array} [I]:</code> The argument of the <code>pd_gaus_p</code> procedure.</p></li>
+<li><p><code>params {FLOAT array} [I]:</code> The array of 7 parameters of the <code>pd_gaus_p</code> procedure.</p></li>
+<li><p><code>pdgp {FLOAT scalar or array} [O]:</code> The value of the Parametric Double Gaussian Function at argument <code>x</code>.</p></li>
+<li><p><code>pder {FLOAT array} [O]:</code> The values of the derivatives of the Parametric Double Gaussian Function with respect to the parameters <code>params</code> at argument <code>x</code>.</p></li>
+</ul></li>
+<li><p><strong>Keyword parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>DOUBLE = double {INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) computing in double precision.</p></li>
+<li><p><code>DEBUG = debug {INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) debugging tests.</p></li>
+<li><p><code>EXCPT_COND = excpt_cond {STRING} [O] (Default value: &#8221;):</code> Description of the exception condition if one has been encountered, or a null string otherwise.</p></li>
+</ul></li>
+<li><p><strong>Returned value type:</strong> N/A.</p></li>
+<li><p><strong>Outcome:</strong></p>
+<ul>
+<li><p>If no exception condition has been detected, this procedure computes the value <code>pdgp</code> of the Parametric Double Gaussian Function at argument <code>x</code>, given the array of 7 parameters <code>params</code>, as well as the derivatives <code>pder</code> of that model at argument <code>x</code> with respect to the parameters. The output keyword parameter <code>excpt_cond</code> is set to a null string, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided in the call.</p></li>
+<li><p>If an exception condition has been detected, the output positional parameters <code>pdgp</code> and <code>pder</code> may be incorrect. The output keyword parameter <code>excpt_cond</code> contains a message about the exception condition encountered, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided.</p></li>
+</ul></li>
+<li><p><strong>Exception conditions:</strong></p>
+<ul>
+<li><p>Error 100: One or more positional parameter(s) are missing.</p></li>
+<li><p>Error 110: The input positional parameter <code>x</code> must be numeric.</p></li>
+<li><p>Error 120: The input positional parameter <code>params</code> must be a numeric array of 7 elements.</p></li>
+</ul></li>
+<li><p><strong>Dependencies:</strong></p>
+<ul>
+<li><p><code>is_array.pro</code></p></li>
+<li><p><code>is_numeric.pro</code></p></li>
+<li><p><code>strstr.pro</code></p></li>
+</ul></li>
+<li><p><strong>Remarks:</strong></p>
+<ul>
+<li><p><strong>Note 1:</strong> The optional input and output keyword parameters <code>DOUBLE</code>, <code>DEBUG</code> and <code>EXCPT_COND</code> are provided for diagnostic and testing purposes, but are ignored by the IDL <code>CURVEFIT</code> function in a model inversion process.</p></li>
+<li><p><strong>Note 2:</strong> Set the optional input keyword parameter <code>DOUBLE</code> to carry out all computations in double precision.</p></li>
+<li><p><strong>Note 3:</strong> If the input positional parameters <code>x</code> is an array, the output positional parameters <code>pdgp</code> and <code>pder</code> will also be arrays of the same dimensions.</p></li>
+</ul></li>
+<li><p><strong>Examples:</strong></p>
+<pre><code>IDL&gt; x = 10.0
+IDL&gt; params = [1.0, 2.0, 10.0, 2.0, -2.2, 10.0, 4.0]
+IDL&gt; pd_gaus_p, x, params, pdgp, pder, $
+   DOUBLE = double, DEBUG = debug, EXCPT_COND = excpt_cond
+IDL&gt; PRINT, &#39;pdgp = &#39;, pdgp
+pdgp =       3.00000
+IDL&gt; PRINT, &#39;pder[1] = &#39;, pder[1]
+pder[1] =       1.00000</code></pre></li>
+<li><p><strong>References:</strong></p>
+<ul>
+<li><p>Michel M. Verstraete (2019) <code>User Manual for the Phenology package</code>.</p></li>
+<li><p>URL: <code>https://en.wikipedia.org/wiki/Normal_distribution</code>, accessed on 2019&#8211;11&#8211;02.</p></li>
+<li><p>URL: <code>https://www.derivative-calculator.net/</code>, accessed on 2019-11-03.</p></li>
+</ul></li>
+<li><p><strong>Versioning:</strong></p>
+<ul>
+<li><p>2019&#8211;10&#8211;05: Version 1.0 &#8212; Initial public release of the function <code>pd_gaus_f.pro</code>.</p></li>
+<li><p>2019&#8211;11&#8211;05: Version 2.0.0 &#8212; Initial public release of the procedure <code>pd_gaus_p.pro</code>, include the derivative computations, document the update, and adopt the current coding standards.</p></li>
+<li><p>2019&#8211;11&#8211;18: Version 2.0.1 &#8212; Remove the detailed mathematical description of the algorithm from the IDL procedure and add it to the <em>User Manual</em>, add the reference to that manual.</p></li>
+</ul></li>
+</ul>
+<h2>pd_hytg_f</h2>
+<ul>
+<li><p><strong>Purpose:</strong> This IDL function returns the value of the Parametric Double Hyperbolic Tangent Function at argument <code>x</code>, given the array <code>params</code> of 7 parameters, and provides the values of its 2 S-shaped functional components in the output positional parameters <code>phtf1</code> and <code>phtf2</code>.</p></li>
+<li><p><strong>Algorithm:</strong> Given the input positional parameters <code>x</code> (scalar or array) and the array <code>params</code> of 7 parameters, this function computes the value of the Parametric Double Hyperbolic Tangent Function (PDHyTgF) and the 2 components <code>phtf1</code> and <code>phtf2</code>.</p></li>
+<li><p><strong>Syntax:</strong> <code>res = pd_hytg_f(x, params, phtf1, phtf2, $</code><br />
+<code>DOUBLE = double, DEBUG = debug, EXCPT_COND = excpt_cond)</code></p></li>
+<li><p><strong>Positional parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>x {FLOAT scalar or array} [I]:</code> The argument of the <code>pd_hytg_f</code> function.</p></li>
+<li><p><code>params {FLOAT array} [I]:</code> The array of 7 parameters of the <code>pd_hytg_f</code> function.</p></li>
+<li><p><code>phtf1 {FLOAT scalar or array} [O]:</code> The value of the first Parametric Hyperbolic Tangent Function at argument <code>x</code> on the basis of parameters <code>params[1]</code> to <code>params[3]</code>.</p></li>
+<li><p><code>phtf2 {FLOAT scalar or array} [O]:</code> The value of the second Parametric Hyperbolic Tangent Function at argument <code>x</code> on the basis of parameters <code>params[4]</code> to <code>params[6]</code>.</p></li>
+</ul></li>
+<li><p><strong>Keyword parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>DOUBLE = double {INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) computing in double precision.</p></li>
+<li><p><code>DEBUG = debug {INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) debugging tests.</p></li>
+<li><p><code>EXCPT_COND = excpt_cond {STRING} [O] (Default value: &#8221;):</code> Description of the exception condition if one has been encountered, or a null string otherwise.</p></li>
+</ul></li>
+<li><p><strong>Returned value type:</strong> <code>FLOAT</code> (scalar or array).</p></li>
+<li><p><strong>Outcome:</strong></p>
+<ul>
+<li><p>If no exception condition has been detected, this function returns the scalar or array value <code>res</code> of the Parametric Double Hyperbolic Tangent Function at argument <code>x</code>, given the array of 7 parameters <code>params</code>. The output positional parameters <code>phtf1</code> and <code>phtf2</code> provide the values of the 2 constitutive contributions for the same argument. The output keyword parameter <code>excpt_cond</code> is set to a null string, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided in the call.</p></li>
+<li><p>If an exception condition has been detected, the return value <code>res</code> and the values of the output positional parameters <code>phtf1</code> and <code>phtf2</code> may be incorrect. The output keyword parameter <code>excpt_cond</code> contains a message about the exception condition encountered, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided.</p></li>
+</ul></li>
+<li><p><strong>Exception conditions:</strong></p>
+<ul>
+<li><p>Error 100: One or more positional parameter(s) are missing.</p></li>
+<li><p>Error 110: The input positional parameter <code>x</code> must be numeric.</p></li>
+<li><p>Error 120: The input positional parameter <code>params</code> must be a numeric array of 7 elements.</p></li>
+</ul></li>
+<li><p><strong>Dependencies:</strong></p>
+<ul>
+<li><p><code>is_array.pro</code></p></li>
+<li><p><code>is_numeric.pro</code></p></li>
+<li><p><code>strstr.pro</code></p></li>
+</ul></li>
+<li><p><strong>Remarks:</strong></p>
+<ul>
+<li><p><strong>Note 1:</strong> This routine does not provide the partial derivatives of the Parametric Double Hyperbolic Tangent Function with respect to the model parameters; use the procedure <code>pd_hytg_p</code> for that purpose.</p></li>
+<li><p><strong>Note 2:</strong> Set the optional input keyword parameter <code>DOUBLE</code> to carry out all computations in double precision.</p></li>
+<li><p><strong>Note 3:</strong> If the input positional parameters <code>x</code> is an array, the return value <code>res</code> and the output positional parameters <code>phtf1</code> and <code>phtf2</code> will also be arrays of the same dimensions.</p></li>
+<li><p><strong>Note 4:</strong> The asymptotic value of <code>pd_hytg_f</code> when <span class="math inline"><em>x</em>&#8196;&#8594;&#8196;&#8197;+&#8197;&#8734;</span> is <code>params[0]</code> <span class="math inline">+</span> <code>params[1]</code> <span class="math inline">+</span> <code>params[4]</code>.</p></li>
+<li><p><strong>Note 5:</strong> The computation of Parametric Double Hyperbolic Tangent Function implemented in this IDL function is slightly different than that described in the publications by Meroni et al. mentioned below.</p></li>
+</ul></li>
+<li><p><strong>Examples:</strong></p>
+<pre><code>IDL&gt; x = 4.5
+IDL&gt; params = [1.0, 2.0, 3.0, 1.0, -2.0, 6.0, 0.5]
+IDL&gt; res = pd_hytg_f(x, params, phtf1, phtf2, $
+   DEBUG = debug, EXCPT_COND = excpt_cond)
+IDL&gt; PRINT, &#39;res = &#39; + strstr(res)
+res = 2.54030</code></pre></li>
+<li><p><strong>References:</strong></p>
+<ul>
+<li><p>Michel M. Verstraete (2019) <em>User Manual for the <code>Phenology</code> package</em>.</p></li>
+<li><p>Meroni, M., M. M. Verstraete, F. Rembold, F. Urbano and F. Kayitakire (2012) &#8216;Analysis of phenologically-tuned productivity anomalies for food security monitoring&#8217;, <em>1st EARSeL Workshop on Temporal Analysis of Satellite Images, Mykonos, Greece, 24-25 May 2012</em>.</p></li>
+<li><p>Meroni, M., Verstraete, M. M., Rembold, F., Urbano, F., Kayitakire, F. (2014) &#8217;A phenology-based method to derive biomass production anomalies for food security monitoring in the Horn of Africa&#8217;, <em>International Journal of Remote Sensing</em>, <strong>35</strong>, 2472&#8211;2492, doi:10.1080/01431161.2014.883090.</p></li>
+</ul></li>
+<li><p><strong>Versioning:</strong></p>
+<ul>
+<li><p>2010&#8211;02&#8211;19: Version 0.9 &#8212; Initial release.</p></li>
+<li><p>2012&#8211;05&#8211;24: Version 1.0 &#8212; Initial public release.</p></li>
+<li><p>2019&#8211;11&#8211;05: Version 2.0.0 &#8212; Update the code to return the function value instead of an error code, documentation update and adoption of current coding standards.</p></li>
+<li><p>2019&#8211;11&#8211;18: Version 2.0.1 &#8212; Remove the detailed mathematical description of the algorithm from the IDL function and add it to the <em>User Manual</em>, add the reference to that manual.</p></li>
+</ul></li>
+</ul>
+<h2>pd_hytg_p</h2>
+<ul>
+<li><p><strong>Purpose:</strong> This IDL procedure computes the values of the Parametric Double Hyperbolic Tangent Function and of its partial derivatives with respect to the model parameters at argument <code>x</code>.</p></li>
+<li><p><strong>Algorithm:</strong> Given the input positional parameters <code>x</code> (scalar or array) and the array <code>params</code> of 7 parameters, this function computes the value <code>pdhtp</code> of the Parametric Double Hyperbolic Tangent Function (PDHyTgF) and the values <code>pder</code> of the partial derivatives of that function with respect to those parameters.</p></li>
+<li><p><strong>Syntax:</strong> <code>pd_hytg_p, x, params, pdhtp, pder, $</code><br />
+<code>DOUBLE = double, DEBUG = debug, EXCPT_COND = excpt_cond)</code></p></li>
+<li><p><strong>Positional parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>x {FLOAT scalar or array} [I]:</code> The argument of the <code>pd_hytg_p</code> procedure.</p></li>
+<li><p><code>params {FLOAT array} [I]:</code> The array of 7 parameters of the <code>pd_hytg_p</code> procedure.</p></li>
+<li><p><code>pdhtp {FLOAT scalar or array} [O]:</code> The value of the Parametric Double Hyperbolic Tangent Function at argument <code>x</code>.</p></li>
+<li><p><code>pder {FLOAT array} [O]:</code> The values of the derivatives of the Parametric Double Hyperbolic Tangent Function with respect to the parameters <code>params</code> at argument <code>x</code>.</p></li>
+</ul></li>
+<li><p><strong>Keyword parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>DOUBLE = double {INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) computing in double precision.</p></li>
+<li><p><code>DEBUG = debug {INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) debugging tests.</p></li>
+<li><p><code>EXCPT_COND = excpt_cond {STRING} [O] (Default value: &#8221;):</code> Description of the exception condition if one has been encountered, or a null string otherwise.</p></li>
+</ul></li>
+<li><p><strong>Returned value type:</strong> N/A.</p></li>
+<li><p><strong>Outcome:</strong></p>
+<ul>
+<li><p>If no exception condition has been detected, this procedure computes the value <code>pdhtp</code> of the Parametric Double Hyperbolic Tangent Function at argument <code>x</code>, given the array of 7 parameters <code>params</code>, as well as the derivatives <code>pder</code> of that model at argument <code>x</code> with respect to the parameters. The output keyword parameter <code>excpt_cond</code> is set to a null string, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided in the call.</p></li>
+<li><p>If an exception condition has been detected, the output positional parameters <code>pdhtp</code> and <code>pder</code> may be incorrect. The output keyword parameter <code>excpt_cond</code> contains a message about the exception condition encountered, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided.</p></li>
+</ul></li>
+<li><p><strong>Exception conditions:</strong></p>
+<ul>
+<li><p>Error 100: One or more positional parameter(s) are missing.</p></li>
+<li><p>Error 110: The input positional parameter <code>x</code> must be numeric.</p></li>
+<li><p>Error 120: The input positional parameter <code>params</code> must be a numeric array of 7 elements.</p></li>
+</ul></li>
+<li><p><strong>Dependencies:</strong></p>
+<ul>
+<li><p><code>is_array.pro</code></p></li>
+<li><p><code>is_numeric.pro</code></p></li>
+<li><p><code>strstr.pro</code></p></li>
+</ul></li>
+<li><p><strong>Remarks:</strong></p>
+<ul>
+<li><p><strong>Note 1:</strong> The optional input and output keyword parameters <code>DOUBLE</code>, <code>DEBUG</code> and <code>EXCPT_COND</code> are provided for diagnostic and testing purposes, but are ignored by the IDL <code>CURVEFIT</code> function in a model inversion process.</p></li>
+<li><p><strong>Note 2:</strong> Set the optional input keyword parameter <code>DOUBLE</code> to carry out all computations in double precision.</p></li>
+<li><p><strong>Note 3:</strong> If the input positional parameters <code>x</code> is an array, the output positional parameters <code>pdhtp</code> and <code>pder</code> will also be arrays of the same dimensions.</p></li>
+<li><p><strong>Note 4:</strong> The computation of Parametric Double Hyperbolic Tangent Function implemented in this IDL procedure is slightly different than that described in the publications by Meroni et al. mentioned below.</p></li>
+</ul></li>
+<li><p><strong>Examples:</strong></p>
+<pre><code>IDL&gt; x = 4.5
+IDL&gt; params = [1.0, 2.0, 3.0, 1.0, -2.0, 6.0, 0.5]
+IDL&gt; pd_hytg_p, x, params, pdhtp, pder, $
+   DOUBLE = double, DEBUG = debug, EXCPT_COND = excpt_cond
+IDL&gt; PRINT, &#39;pdhtp = &#39;, pdhtp
+pdhtp =       2.54030
+IDL&gt; PRINT, &#39;pder[5] = &#39;, pder[5]
+pder[5] =      0.298293</code></pre></li>
+<li><p><strong>References:</strong></p>
+<ul>
+<li><p>Michel M. Verstraete (2019) <em>User Manual for the <code>Phenology</code> package</em>.</p></li>
+<li><p>Meroni, M., M. M. Verstraete, F. Rembold, F. Urbano and F. Kayitakire (2012) &#8216;Analysis of phenologically-tuned productivity anomalies for food security monitoring&#8217;, <em>1st EARSeL Workshop on Temporal Analysis of Satellite Images, Mykonos, Greece, 24-25 May 2012</em>.</p></li>
+<li><p>Meroni, M., Verstraete, M. M., Rembold, F., Urbano, F., Kayitakire, F. (2014) &#8217;A phenology-based method to derive biomass production anomalies for food security monitoring in the Horn of Africa&#8217;, <em>International Journal of Remote Sensing</em>, <strong>35</strong>, 2472&#8211;2492, doi:10.1080/01431161.2014.883090.</p></li>
+<li><p>URL: <code>http://mathworld.wolfram.com/HyperbolicTangent.html</code>, accessed on<br />
+2019&#8211;11&#8211;05.</p></li>
+<li><p>URL: <code>https://www.derivative-calculator.net/</code>, accessed on 2019-11-03.</p></li>
+</ul></li>
+<li><p><strong>Versioning:</strong></p>
+<ul>
+<li><p>2010&#8211;02&#8211;19: Version 0.9 &#8212; Initial release of the <code>pdhtf.pro</code> procedure.</p></li>
+<li><p>2012&#8211;05&#8211;24: Version 1.0 &#8212; Initial public release.</p></li>
+<li><p>2019&#8211;11&#8211;06: Version 2.0.0 &#8212; Rename the procedure <code>pd_hytg_p.pro</code>, include the derivative computations, document the update, and adopt the current coding standards.</p></li>
+<li><p>2019&#8211;11&#8211;18: Version 2.0.1 &#8212; Remove the detailed mathematical description of the algorithm from the IDL procedure and add it to the <em>User Manual</em>, add the reference to that manual.</p></li>
+</ul></li>
+</ul>
+<h2>pd_logi_f</h2>
+<ul>
+<li><p><strong>Purpose:</strong> This IDL function returns the value of the Parametric Double Logistic Function at argument <code>x</code>, given the array <code>params</code> of 7 parameters, and provides the values of its 2 S-shaped functional components in the output positional parameters <code>plf1</code> and <code>plf2</code>.</p></li>
+<li><p><strong>Algorithm:</strong> Given the input positional parameters <code>x</code> (scalar or array) and the array <code>params</code> of 7 parameters, this function computes the value of the Parametric Double Logistic Function (PDLF) and the 2 components <code>plf1</code> and <code>plf2</code>.</p></li>
+<li><p><strong>Syntax:</strong> <code>res = pd_logi_f(x, params, plf1, plf2, $</code><br />
+<code>DOUBLE = double, DEBUG = debug, EXCPT_COND = excpt_cond)</code></p></li>
+<li><p><strong>Positional parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>x {FLOAT scalar or array} [I]:</code> The argument of the <code>pd_logi_f</code> function.</p></li>
+<li><p><code>params {FLOAT array} [I]:</code> The array of 7 parameters of the <code>pd_logi_f</code> function.</p></li>
+<li><p><code>plf1 {FLOAT scalar or array} [O]:</code> The value of the first Parametric Logistic Function at argument <code>x</code> on the basis of parameters <code>params[1]</code> to <code>params[3]</code>.</p></li>
+<li><p><code>plf2 {FLOAT scalar or array} [O]:</code> The value of the second Parametric Logistic Function at argument <code>x</code> on the basis of parameters <code>params[4]</code> to <code>params[6]</code>.</p></li>
+</ul></li>
+<li><p><strong>Keyword parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>DOUBLE = double {INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) computing in double precision.</p></li>
+<li><p><code>DEBUG = debug {INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) debugging tests.</p></li>
+<li><p><code>EXCPT_COND = excpt_cond {STRING} [O] (Default value: &#8221;):</code> Description of the exception condition if one has been encountered, or a null string otherwise.</p></li>
+</ul></li>
+<li><p><strong>Returned value type:</strong> <code>FLOAT</code> (scalar or array).</p></li>
+<li><p><strong>Outcome:</strong></p>
+<ul>
+<li><p>If no exception condition has been detected, this function returns the scalar or array value <code>res</code> of the Parametric Double Logistic Function at argument <code>x</code>, given the array of 7 parameters <code>params</code>. The output positional parameters <code>plf1</code> and <code>plf2</code> provide the values of the 2 constitutive contributions for the same argument. The output keyword parameter <code>excpt_cond</code> is set to a null string, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided in the call.</p></li>
+<li><p>If an exception condition has been detected, the return value <code>res</code> and the values of the output positional parameters <code>plf1</code> and <code>plf2</code> may be incorrect. The output keyword parameter <code>excpt_cond</code> contains a message about the exception condition encountered, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided.</p></li>
+</ul></li>
+<li><p><strong>Exception conditions:</strong></p>
+<ul>
+<li><p>Error 100: One or more positional parameter(s) are missing.</p></li>
+<li><p>Error 110: The input positional parameter <code>x</code> must be numeric.</p></li>
+<li><p>Error 120: The input positional parameter <code>params</code> must be a numeric array of 7 elements.</p></li>
+</ul></li>
+<li><p><strong>Dependencies:</strong></p>
+<ul>
+<li><p><code>is_array.pro</code></p></li>
+<li><p><code>is_numeric.pro</code></p></li>
+<li><p><code>strstr.pro</code></p></li>
+</ul></li>
+<li><p><strong>Remarks:</strong></p>
+<ul>
+<li><p><strong>Note 1:</strong> This routine does not provide the partial derivatives of the Parametric Double Logistic Function with respect to the model parameters; use the procedure <code>pd_logi_p</code> for that purpose.</p></li>
+<li><p><strong>Note 2:</strong> Set the optional input keyword parameter <code>DOUBLE</code> to carry out all computations in double precision.</p></li>
+<li><p><strong>Note 3:</strong> If the input positional parameters <code>x</code> is an array, the return value <code>res</code> and the output positional parameters <code>plf1</code> and <code>plf2</code> will also be arrays of the same dimensions.</p></li>
+<li><p><strong>Note 4:</strong> The asymptotic value of <code>pd_logi_f</code> when <span class="math inline"><em>x</em>&#8196;&#8594;&#8196;&#8197;+&#8197;&#8734;</span> is <code>params[0]</code> <span class="math inline">+</span> <code>params[1]</code> <span class="math inline">+</span> <code>params[4]</code>.</p></li>
+</ul></li>
+<li><p><strong>Examples:</strong></p>
+<pre><code>IDL&gt; x = 15.0
+IDL&gt; params = [1.0, 3.0, 7.0, 2.5, -3.2, 25.0, 1.5]
+IDL&gt; res = pd_logi_f(x, params, plf1, plf2, $
+   DEBUG = debug, EXCPT_COND = excpt_cond)
+IDL&gt; PRINT, &#39;res = &#39; + strstr(res)
+res = 4.00000</code></pre></li>
+<li><p><strong>References:</strong></p>
+<ul>
+<li><p>Michel M. Verstraete (2019) <em>User Manual for the <code>Phenology</code> package</em>.</p></li>
+<li><p>URL: <code>https://en.wikipedia.org/wiki/Sigmoid_function</code>, accessed on 6 October 2019.</p></li>
+</ul></li>
+<li><p><strong>Versioning:</strong></p>
+<ul>
+<li><p>2019&#8211;10&#8211;05: Version 1.0 &#8212; Initial public release, as a function returning an error code.</p></li>
+<li><p>2019&#8211;10&#8211;07: Version 2.0.0 &#8212; Modify the code to return the function value instead of an error code, update the documentation and adopt the current coding standards.</p></li>
+<li><p>2019&#8211;11&#8211;18: Version 2.0.1 &#8212; Remove the detailed mathematical description of the algorithm from the IDL function and add it to the <em>User Manual</em>, add the reference to that manual.</p></li>
+</ul></li>
+</ul>
+<h2>pd_logi_p</h2>
+<ul>
+<li><p><strong>Purpose:</strong> This IDL procedure computes the values of the Parametric Double Logistic Function and of its partial derivatives with respect to the model parameters at argument <code>x</code>.</p></li>
+<li><p><strong>Algorithm:</strong> Given the input positional parameters <code>x</code> (scalar or array) and the array <code>params</code> of 7 parameters, this function computes the value <code>pdlp</code> of the Parametric Double Logistic Function (PDLF) and the values <code>pder</code> of the partial derivatives of that function with respect to those parameters.</p></li>
+<li><p><strong>Syntax:</strong> <code>pd_logi_p, x, params, pdlp, pder, $</code><br />
+<code>DOUBLE = double, DEBUG = debug, EXCPT_COND = excpt_cond</code></p></li>
+<li><p><strong>Positional parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>x {FLOAT scalar or array} [I]:</code> The argument of the <code>pd_logi_p</code> procedure.</p></li>
+<li><p><code>params {FLOAT array} [I]:</code> The array of 7 parameters of the <code>pd_logi_p</code> procedure.</p></li>
+<li><p><code>pdlp {FLOAT scalar or array} [O]:</code> The value of the Parametric Double Logistic Function at argument <code>x</code>.</p></li>
+<li><p><code>pder {FLOAT array} [O]:</code> The values of the derivatives of the Parametric Double Logistic Function with respect to the parameters <code>params</code> at argument <code>x</code>.</p></li>
+</ul></li>
+<li><p><strong>Keyword parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>DOUBLE = double {INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) computing in double precision.</p></li>
+<li><p><code>DEBUG = debug {INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) debugging tests.</p></li>
+<li><p><code>EXCPT_COND = excpt_cond {STRING} [O] (Default value: &#8221;):</code> Description of the exception condition if one has been encountered, or a null string otherwise.</p></li>
+</ul></li>
+<li><p><strong>Returned value type:</strong> N/A.</p></li>
+<li><p><strong>Outcome:</strong></p>
+<ul>
+<li><p>If no exception condition has been detected, this procedure computes the value <code>pdlp</code> of the Parametric Double Logistic Function at argument <code>x</code>, given the array of 7 parameters <code>params</code>, as well as the derivatives <code>pder</code> of that model at argument <code>x</code> with respect to the parameters. The output keyword parameter <code>excpt_cond</code> is set to a null string, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided in the call.</p></li>
+<li><p>If an exception condition has been detected, the output positional parameters <code>pdlp</code> and <code>pder</code> may be incorrect. The output keyword parameter <code>excpt_cond</code> contains a message about the exception condition encountered, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided.</p></li>
+</ul></li>
+<li><p><strong>Exception conditions:</strong></p>
+<ul>
+<li><p>Error 100: One or more positional parameter(s) are missing.</p></li>
+<li><p>Error 110: The input positional parameter <code>x</code> must be numeric.</p></li>
+<li><p>Error 120: The input positional parameter <code>params</code> must be a numeric array of 7 elements.</p></li>
+</ul></li>
+<li><p><strong>Dependencies:</strong></p>
+<ul>
+<li><p><code>is_array.pro</code></p></li>
+<li><p><code>is_numeric.pro</code></p></li>
+<li><p><code>strstr.pro</code></p></li>
+</ul></li>
+<li><p><strong>Remarks:</strong></p>
+<ul>
+<li><p><strong>Note 1:</strong> The optional input and output keyword parameters <code>DOUBLE</code>, <code>DEBUG</code> and <code>EXCPT_COND</code> are provided for diagnostic and testing purposes, but are ignored by the IDL <code>CURVEFIT</code> function in a model inversion process.</p></li>
+<li><p><strong>Note 2:</strong> Set the optional input keyword parameter <code>DOUBLE</code> to carry out all computations in double precision.</p></li>
+<li><p><strong>Note 3:</strong> If the input positional parameters <code>x</code> is an array, the output positional parameters <code>pdlp</code> and <code>pder</code> will also be arrays of the same dimensions.</p></li>
+</ul></li>
+<li><p><strong>Examples:</strong></p>
+<pre><code>IDL&gt; x = 15.0
+IDL&gt; params = [1.0, 3.0, 7.0, 2.5, -3.2, 25.0, 1.5]
+IDL&gt; pd_logi_p, x, params, pdlp, pder, $
+   DOUBLE = double, DEBUG = debug, EXCPT_COND = excpt_cond
+IDL&gt; PRINT, &#39;pdlp = &#39;, pdlp
+pdlp =       4.00000
+IDL&gt; PRINT, &#39;pder[2] = &#39;, pder[2]
+pder[2] =  -1.54587e-08</code></pre></li>
+<li><p><strong>References:</strong></p>
+<ul>
+<li><p>Michel M. Verstraete (2019) <code>User Manual for the Phenology package</code>.</p></li>
+<li><p>URL: <code>https://en.wikipedia.org/wiki/Sigmoid_function</code>, accessed on 6 October 2019.</p></li>
+<li><p>URL: <code>https://www.derivative-calculator.net/</code>, accessed on 2019-11-03.</p></li>
+</ul></li>
+<li><p><strong>Versioning:</strong></p>
+<ul>
+<li><p>2019&#8211;10&#8211;05: Version 1.0 &#8212; Initial public release, as a function returning an error code.</p></li>
+<li><p>2019&#8211;11&#8211;07: Version 2.0.0 &#8212; Initial public release of the procedure <code>pd_logi_p.pro</code>, include the derivative computations, document the update, and adopt the current coding standards.</p></li>
+<li><p>2019&#8211;11&#8211;18: Version 2.0.1 &#8212; Remove the detailed mathematical description of the algorithm from the IDL procedure and add it to the <em>User Manual</em>, add the reference to that manual.</p></li>
+</ul></li>
+</ul>
+<h2>pd_sine_f</h2>
+<ul>
+<li><p><strong>Purpose:</strong> This IDL function returns the value of the Parametric Double Sine Function at argument <code>x</code>, given the array <code>params</code> of 7 parameters, and provides the values of its 2 S-shaped functional components in the output positional parameters <code>psf1</code> and <code>psf2</code>.</p></li>
+<li><p><strong>Algorithm:</strong> Given the input positional parameters <span class="math inline"><em>x</em></span> (scalar or array) and the array <code>params</code> of 7 parameters, this function computes the value of the Parametric Double Sine Function (PDSF) and the 2 components <code>psf1</code> and <code>psf2</code>.</p></li>
+<li><p><strong>Syntax:</strong> <code>res = pd_sine_f(x, params, psf1, psf2, $</code><br />
+<code>DOUBLE = double, DEBUG = debug, EXCPT_COND = excpt_cond)</code></p></li>
+<li><p><strong>Positional parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>x {FLOAT scalar or array} [I]:</code> The argument of the <code>pd_sine_f</code> function.</p></li>
+<li><p><code>params {FLOAT array} [I]:</code> The array of 7 parameters of the <code>pd_sine_f</code> function.</p></li>
+<li><p><code>psf1 {FLOAT scalar or array} [O]:</code> The value of the first Parametric Sine Function at argument <code>x</code> on the basis of parameters <code>params[1]</code> to <code>params[3]</code>.</p></li>
+<li><p><code>psf2 {FLOAT scalar or array} [O]:</code> The value of the second Parametric Sine Function at argument <code>x</code> on the basis of parameters <code>params[4]</code> to <code>params[6]</code>.</p></li>
+</ul></li>
+<li><p><strong>Keyword parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>DOUBLE = double {INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) computing in double precision.</p></li>
+<li><p><code>DEBUG = debug {INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) debugging tests.</p></li>
+<li><p><code>EXCPT_COND = excpt_cond {STRING} [O] (Default value: &#8221;):</code> Description of the exception condition if one has been encountered, or a null string otherwise.</p></li>
+</ul></li>
+<li><p><strong>Returned value type:</strong> <code>FLOAT</code> (scalar or array).</p></li>
+<li><p><strong>Outcome:</strong></p>
+<ul>
+<li><p>If no exception condition has been detected, this function returns the scalar or array value <code>res</code> of the Parametric Double Sine Function at argument <code>x</code>, given the array of 7 parameters <code>params</code>. The output positional parameters <code>psf1</code> and <code>psf2</code> provide the values of the 2 constitutive contributions for the same argument. The output keyword parameter <code>excpt_cond</code> is set to a null string, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided in the call.</p></li>
+<li><p>If an exception condition has been detected, the return value <code>res</code> and the values of the output positional parameters <code>psf1</code> and <code>psf2</code> may be incorrect. The output keyword parameter <code>excpt_cond</code> contains a message about the exception condition encountered, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided.</p></li>
+</ul></li>
+<li><p><strong>Exception conditions:</strong></p>
+<ul>
+<li><p>Error 100: One or more positional parameter(s) are missing.</p></li>
+<li><p>Error 110: The input positional parameter <code>x</code> must be numeric.</p></li>
+<li><p>Error 120: The input positional parameter <code>params</code> must be a numeric array of 7 elements.</p></li>
+</ul></li>
+<li><p><strong>Dependencies:</strong></p>
+<ul>
+<li><p><code>is_array.pro</code></p></li>
+<li><p><code>is_numeric.pro</code></p></li>
+<li><p><code>strstr.pro</code></p></li>
+</ul></li>
+<li><p><strong>Remarks:</strong></p>
+<ul>
+<li><p><strong>Note 1:</strong> This routine does not provide the partial derivatives of the Parametric Double Sine Function with respect to the model parameters; use the procedure <code>pd_sine_p</code> for that purpose.</p></li>
+<li><p><strong>Note 2:</strong> Set the optional input keyword parameter <code>DOUBLE</code> to carry out all computations in double precision.</p></li>
+<li><p><strong>Note 3:</strong> If the input positional parameters <code>x</code> is an array, the return value <code>res</code> and the output positional parameters <code>psf1</code> and <code>psf2</code> will also be arrays of the same dimensions.</p></li>
+<li><p><strong>Note 4:</strong> The asymptotic value of <code>pd_logi_f</code> when <span class="math inline"><em>x</em>&#8196;&#8594;&#8196;&#8197;+&#8197;&#8734;</span> is <code>params[0]</code> <span class="math inline">+</span> <code>params[1]</code> <span class="math inline">+</span> <code>params[4]</code>.</p></li>
+</ul></li>
+<li><p><strong>Examples:</strong></p>
+<pre><code>IDL&gt; x = 17.0
+IDL&gt; params = [1.0, 3.0, 0.0, 10.0, -2.5, 20.0, 35.0]
+IDL&gt; res = pd_sine_f(x, params, psf1, psf2, $
+   DEBUG = debug, EXCPT_COND = excpt_cond)
+IDL&gt; PRINT, &#39;res = &#39; + strstr(res)
+res = 4.00000</code></pre></li>
+<li><p><strong>References:</strong></p>
+<ul>
+<li><p>Michel M. Verstraete (2019) <em>User Manual for the <code>Phenology</code> package</em>.</p></li>
+</ul></li>
+<li><p><strong>Versioning:</strong></p>
+<ul>
+<li><p>2019&#8211;10&#8211;05: Version 1.0 &#8212; Initial public release.</p></li>
+<li><p>2019&#8211;11&#8211;08: Version 2.0.0 &#8212; Modify the code to return the function value instead of an error code, update the documentation and adopt the current coding standards.</p></li>
+<li><p>2019&#8211;11&#8211;18: Version 2.0.1 &#8212; Remove the detailed mathematical description of the algorithm from the IDL function and add it to the <em>User Manual</em>, add the reference to that manual.</p></li>
+</ul></li>
+</ul>
+<h2>pd_sine_p</h2>
+<ul>
+<li><p><strong>Purpose:</strong> This IDL procedure computes the values of the Parametric Double Sine Function and of its partial derivatives with respect to the model parameters at argument <code>x</code>.</p></li>
+<li><p><strong>Algorithm:</strong> Given the input positional parameters <code>x</code> (scalar or array) and the array <code>params</code> of 7 parameters, this function computes the value <code>pdsp</code> of the Parametric Double Sine Function (PDSF) and the values <code>pder</code> of the partial derivatives of that function with respect to those parameters.</p></li>
+<li><p><strong>Syntax:</strong> <code>pd_sine_p, x, params, pdsp, pder, $</code><br />
+<code>DOUBLE = double, DEBUG = debug, EXCPT_COND = excpt_cond)</code></p></li>
+<li><p><strong>Positional parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>x {FLOAT scalar or array} [I]:</code> The argument of the <code>pd_sine_f</code> procedure.</p></li>
+<li><p><code>params {FLOAT array} [I]:</code> The array of 7 parameters of the <code>pd_sine_p</code> procedure.</p></li>
+<li><p><code>pdsp {FLOAT scalar or array} [O]:</code> The value of the Parametric Double Sine Function at argument <code>x</code>.</p></li>
+<li><p><code>pder {FLOAT array} [O]:</code> The values of the derivatives of the Parametric Double Sine Function with respect to the parameters <code>params</code> at argument <code>x</code>.</p></li>
+</ul></li>
+<li><p><strong>Keyword parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>DOUBLE = double {INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) computing in double precision.</p></li>
+<li><p><code>DEBUG = debug {INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) debugging tests.</p></li>
+<li><p><code>EXCPT_COND = excpt_cond {STRING} [O] (Default value: &#8221;):</code> Description of the exception condition if one has been encountered, or a null string otherwise.</p></li>
+</ul></li>
+<li><p><strong>Returned value type:</strong> N/A.</p></li>
+<li><p><strong>Outcome:</strong></p>
+<ul>
+<li><p>If no exception condition has been detected, this procedure computes the value <code>pdsp</code> of the Parametric Double Sine Function at argument <code>x</code>, given the array of 7 parameters <code>params</code>, as well as the derivatives <code>pder</code> of that model at argument <code>x</code> with respect to the parameters. The output keyword parameter <code>excpt_cond</code> is set to a null string, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided in the call.</p></li>
+<li><p>If an exception condition has been detected, the output positional parameters <code>pdsp</code> and <code>pder</code> may be incorrect. The output keyword parameter <code>excpt_cond</code> contains a message about the exception condition encountered, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided.</p></li>
+</ul></li>
+<li><p><strong>Exception conditions:</strong></p>
+<ul>
+<li><p>Error 100: One or more positional parameter(s) are missing.</p></li>
+<li><p>Error 110: The input positional parameter <code>x</code> must be numeric.</p></li>
+<li><p>Error 120: The input positional parameter <code>params</code> must be a numeric array of 7 elements.</p></li>
+</ul></li>
+<li><p><strong>Dependencies:</strong></p>
+<ul>
+<li><p><code>is_array.pro</code></p></li>
+<li><p><code>is_numeric.pro</code></p></li>
+<li><p><code>strstr.pro</code></p></li>
+</ul></li>
+<li><p><strong>Remarks:</strong></p>
+<ul>
+<li><p><strong>Note 1:</strong> The optional input and output keyword parameters <code>DOUBLE</code>, <code>DEBUG</code> and <code>EXCPT_COND</code> are provided for diagnostic and testing purposes, but are ignored by the IDL <code>CURVEFIT</code> function in a model inversion process.</p></li>
+<li><p><strong>Note 2:</strong> Set the optional input keyword parameter <code>DOUBLE</code> to carry out all computations in double precision.</p></li>
+<li><p><strong>Note 3:</strong> If the input positional parameters <code>x</code> is an array, the output positional parameters <code>pdsp</code> and <code>pder</code> will also be arrays of the same dimensions.</p></li>
+</ul></li>
+<li><p><strong>Examples:</strong></p>
+<pre><code>IDL&gt; x = 24
+IDL&gt; params = [1.0, 3.0, 0.0, 10.0, -2.5, 20.0, 35.0]
+IDL&gt; pd_sine_p, x, params, pdsf, pder, $
+   DOUBLE = double, DEBUG = debug, EXCPT_COND = excpt_cond
+IDL&gt; PRINT, &#39;pdsf = &#39;, pdsf
+pdsf =       3.58641
+IDL&gt; PRINT, &#39;pder[5] = &#39;, pder[5]
+pder[5] =      0.142674</code></pre></li>
+<li><p><strong>References:</strong></p>
+<ul>
+<li><p>Michel M. Verstraete (2019) <em>User Manual for the <code>Phenology</code> package</em>.</p></li>
+<li><p>URL: <code>https://www.derivative-calculator.net/</code>, accessed on 2019-11-03.</p></li>
+</ul></li>
+<li><p><strong>Versioning:</strong></p>
+<ul>
+<li><p>2019&#8211;10&#8211;05: Version 1.0 &#8212; Initial public release.</p></li>
+<li><p>2019&#8211;11&#8211;08: Version 2.0.0 &#8212; Modify the code to return the function value instead of an error code, update the documentation and adopt the current coding standards.</p></li>
+<li><p>2019&#8211;11&#8211;18: Version 2.0.1 &#8212; Remove the detailed mathematical description of the algorithm from the IDL procedure and add it to the <em>User Manual</em>, add the reference to that manual.</p></li>
+</ul></li>
+</ul>
+<h2>plt_dsf</h2>
+<ul>
+<li><p><strong>Purpose:</strong> This function plots the two components as well as the combined value of an arbitrary double S-shaped function defined by its (typically 7) parameters, and data arrays if they are also provided.</p></li>
+<li><p><strong>Algorithm:</strong> This function plots the traces of the 3 input positional parameters <code>fsf_y</code>, <code>ssf_y</code> and <code>dsf_y</code>, as a function of the input positional parameter <code>x</code>, or optionally over the alternative range <code>[from_x, to_x]</code>. If arrays of <code>x</code> and <code>y</code> data values are also provided, they are superinposed on the plot.</p></li>
+<li><p><strong>Syntax:</strong> <code>rc = plt_dsf(x, fsf_y, ssf_y, dsf_y, $</code><br />
+<code>F_TYPE = f_type, PARAMS_STR = params_str, $</code><br />
+<code>X_DATA = x_data, Y_DATA = y_data, $</code><br />
+<code>FROM_X = from_x, TO_X = to_x, $</code><br />
+<code>ITER = iter, CHISQ = chisq, $</code><br />
+<code>PLOT_IT = plot_it, PLOT_FOLDER = plot_folder, $</code><br />
+<code>VERBOSE = verbose, DEBUG = debug, EXCPT_COND = excpt_cond)</code></p></li>
+<li><p><strong>Positional parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>x {FLOAT array} [I]:</code> The independent variable of the S-shaped functions.</p></li>
+<li><p><code>fsf_y {FLOAT array} [I]:</code> The values of the first S-shaped function for the corresponding values of <code>x</code>.</p></li>
+<li><p><code>ssf_y {FLOAT array} [I]:</code> The values of the second S-shaped function for the corresponding values of <code>x</code>.</p></li>
+<li><p><code>dsf_y {FLOAT array} [I]:</code> The values of the double S-shaped function for the corresponding values of <code>x</code>.</p></li>
+</ul></li>
+<li><p><strong>Keyword parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>F_TYPE = f_type {STRING} [I]:</code> The optional abbreviated name (acronym) of the double S-shaped function, used to generate the ordinate axis and overall titles of the plot.</p></li>
+<li><p><code>PARAMS_STR = params_str {STRING} [I]:</code> The optional string containing the numerical values of the function parameters, used to generate the overall title of the plot.</p></li>
+<li><p><code>X_DATA = x_data {FLOAT} [I] (Default value: None):</code> The optional abscissas of the data points.</p></li>
+<li><p><code>Y_DATA = y_data {FLOAT} [I] (Default value: None):</code> The optional ordinates of the data points.</p></li>
+<li><p><code>FROM_X = from_x {FLOAT} [I] (Default value: MIN(x):</code> The optional smallest value of <code>x</code> to be plotted.</p></li>
+<li><p><code>TO_X = to_x {FLOAT} [I] (Default value: MAX(x):</code> The optional largest value of <code>x</code> to be plotted.</p></li>
+<li><p><code>ITER = iter {INT} [I] (Default value: None):</code> The number of iterations accomplished when inverting the model against the data.</p></li>
+<li><p><code>CHISQ = chisq {FLOAT} [I] (Default value: None):</code> The <span class="math inline"><em>&#967;</em><sup>2</sup></span> value expressing the degree of fitness between the model and the data.</p></li>
+<li><p><code>PLOT_IT = plot_it{INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) generating plots.</p></li>
+<li><p><code>PLOT_FOLDER = plot_folder {STRING} [I]:</code> The directory address of the output folder containing the plots, if different from the value implied by the default set by function <code>set_roots_vers.pro)</code> and the routine arguments.</p></li>
+<li><p><code>VERBOSE = verbose {INT} [I] (Default value: 0):</code> Flag to enable (&gt; 0) or skip (0) outputting messages on the console:</p>
+<ul>
+<li><p>If <code>verbose &gt; 0</code>, messages inform the user about progress in the execution of time-consuming routines, or the location of output files (e.g., log, map, plot, etc.);</p></li>
+<li><p>If <code>verbose &gt; 1</code>, messages record entering and exiting the routine; and</p></li>
+<li><p>If <code>verbose &gt; 2</code>, messages provide additional information about intermediary results.</p></li>
+</ul></li>
+<li><p><code>DEBUG = debug {INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) debugging tests.</p></li>
+<li><p><code>EXCPT_COND = excpt_cond {STRING} [O] (Default value: &#8221;):</code> Description of the exception condition if one has been encountered, or a null string otherwise.</p></li>
+</ul></li>
+<li><p><strong>Returned value type:</strong> <code>INT</code> [or N/A].</p></li>
+<li><p><strong>Outcome:</strong></p>
+<ul>
+<li><p>If no exception condition has been detected, this function returns <code>0</code>, and the output keyword parameter <code>excpt_cond</code> is set to a null string, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided in the call. If the optional input keyword parameter <code>PLOT_IT</code> is set, a plot is generated in the specified or default folder.</p></li>
+<li><p>If an exception condition has been detected, this function returns a non-zero error code, and the output keyword parameter <code>excpt_cond</code> contains a message about the exception condition encountered, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided. If the optional input keyword parameter <code>PLOT_IT</code> is set, the plot may not have been created.</p></li>
+</ul></li>
+<li><p><strong>Exception conditions:</strong></p>
+<ul>
+<li><p>Error 100: One or more positional parameter(s) are missing.</p></li>
+<li><p>Error 110: The input positional parameter <code>x</code> is not a numeric array.</p></li>
+<li><p>Error 120: The input positional parameter <code>fsf_y</code> is not a numeric array.</p></li>
+<li><p>Error 130: The input positional parameter <code>ssf_y</code> is not a numeric array.</p></li>
+<li><p>Error 140: The input positional parameter <code>dsf_y</code> is not a numeric array.</p></li>
+<li><p>Error 150: The input positional parameters <code>x</code>, <code>fsf_y</code>, <code>ssf_y</code> and <code>dsf_y</code> do not contain the same numbers of elements.</p></li>
+<li><p>Error 199: An exception condition occurred in <code>set_roots_vers.pro</code>.</p></li>
+<li><p>Error 400: The directory <code>plot_fpath</code> is unwritable.</p></li>
+</ul></li>
+<li><p><strong>Dependencies:</strong></p>
+<ul>
+<li><p><code>force_path_sep.pro</code></p></li>
+<li><p><code>is_array.pro</code></p></li>
+<li><p><code>is_numeric.pro</code></p></li>
+<li><p><code>is_writable_dir.pro</code></p></li>
+<li><p><code>set_roots_vers.pro</code></p></li>
+<li><p><code>set_value_range.pro</code></p></li>
+<li><p><code>strstr.pro</code></p></li>
+<li><p><code>today.pro</code></p></li>
+</ul></li>
+<li><p><strong>Remarks:</strong></p>
+<ul>
+<li><p><strong>Note 1:</strong> This IDL function plots the input data sets and saves the resulting exhibit in a file only if the input keyword parameter <code>PLOT_IT</code> is set.</p></li>
+</ul></li>
+<li><p><strong>Examples:</strong></p>
+<pre><code>See the diagrams following the descriptions of functions
+pd_gaus_f.pro, pd_hytg_f.pro, pd_logi_f.pro and pd_sine_f.pro.</code></pre></li>
+<li><p><strong>References:</strong></p>
+<ul>
+<li><p>Michel M. Verstraete (2019) <em>User Manual for the <code>Phenology</code> package</em>.</p></li>
+</ul></li>
+<li><p><strong>Versioning:</strong></p>
+<ul>
+<li><p>2019&#8211;10&#8211;05: Version 1.0 &#8212; Initial release.</p></li>
+<li><p>2019&#8211;10&#8211;31: Version 2.0.0 &#8212; Adopt revised coding and documentation standards, and switch to 3-parts version identifiers; initial public release.</p></li>
+<li><p>2019&#8211;11&#8211;18: Version 2.0.1 &#8212; Update the txt annotations to the plots and add the reference to the <em>User Manual</em>.</p></li>
+</ul></li>
+</ul>
+<h2>set_prior_dsf</h2>
+<ul>
+<li><p><strong>Purpose:</strong> This function assigns prior values to the 7 parameters of the selected double S-shaped model, which is intended to simulate a signal that typically goes from low to high to low values, as would be the case for a bio-geophysical variable describing the time evolution of a single growing season.</p></li>
+<li><p><strong>Algorithm:</strong> This function analyses the input data record contained in the positional parameters <code>x</code> and <code>y</code>, and establishes suitable prior values for the 7 parameters of one of the recognized the parametric model identified as <code>model_p</code>.</p></li>
+<li><p><strong>Syntax:</strong> <code>rc = set_prior_dsf(x, y, model_p, params, $</code><br />
+<code>VERBOSE = verbose, DEBUG = debug, EXCPT_COND = excpt_cond)</code></p></li>
+<li><p><strong>Positional parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>x {FLOAT array} [I]:</code> The abscissas of the measurements to which the model must be fitted.</p></li>
+<li><p><code>y {FLOAT array} [I]:</code> The ordinates of the measurements to which the model must be fitted.</p></li>
+<li><p><code>model_p {STRING} [I]:</code> The name of the IDL procedure that computes the value of one of the recognized models at argument <code>x</code>.</p></li>
+<li><p><code>params {FLOAT array} [O]:</code> The array of 7 parameters of the <code>model_p</code> procedure.</p></li>
+</ul></li>
+<li><p><strong>Keyword parameters [Input/Output]:</strong></p>
+<ul>
+<li><p><code>VERBOSE = verbose {INT} [I] (Default value: 0):</code> Flag to enable (&gt; 0) or skip (0) outputting messages on the console:</p>
+<ul>
+<li><p>If <code>verbose &gt; 0</code>, messages inform the user about progress in the execution of time-consuming routines, or the location of output files (e.g., log, map, plot, etc.);</p></li>
+<li><p>If <code>verbose &gt; 1</code>, messages record entering and exiting the routine; and</p></li>
+<li><p>If <code>verbose &gt; 2</code>, messages provide additional information about intermediary results.</p></li>
+</ul></li>
+<li><p><code>DEBUG = debug {INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) debugging tests.</p></li>
+<li><p><code>EXCPT_COND = excpt_cond {STRING} [O] (Default value: &#8221;):</code> Description of the exception condition if one has been encountered, or a null string otherwise.</p></li>
+</ul></li>
+<li><p><strong>Returned value type:</strong> <code>INT</code>.</p></li>
+<li><p><strong>Outcome:</strong></p>
+<ul>
+<li><p>If no exception condition has been detected, this function returns <code>0</code>, and the output keyword parameter <code>excpt_cond</code> is set to a null string, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided in the call. The output positional parameter <code>params</code> contains the results generated by this function.</p></li>
+<li><p>If an exception condition has been detected, this function returns a non-zero error code, and the output keyword parameter <code>excpt_cond</code> contains a message about the exception condition encountered, if the optional input keyword parameter <code>DEBUG</code> is set and if the optional output keyword parameter <code>EXCPT_COND</code> is provided. The output positional parameter <code>params</code> may be incorrect.</p></li>
+</ul></li>
+<li><p><strong>Exception conditions:</strong></p>
+<ul>
+<li><p>Error 100: One or more positional parameter(s) are missing.</p></li>
+<li><p>Error 110: The input positional parameter <code>x</code> is not a numeric array with at least 10 elements.</p></li>
+<li><p>Error 120: The input positional parameter <code>y</code> is not a numeric array with at least 10 elements.</p></li>
+<li><p>Error 130: The input positional parameters <code>x</code> and <code>y</code> are of different sizes.</p></li>
+<li><p>Error 140: The input positional parameter <code>model_p</code> is not a string.</p></li>
+<li><p>Error 150: The input positional parameter <code>model_p</code> is not recognized.</p></li>
+</ul></li>
+<li><p><strong>Dependencies:</strong></p>
+<ul>
+<li><p><code>is_array.pro</code></p></li>
+<li><p><code>is_numeric.pro</code></p></li>
+<li><p><code>is_string.pro</code></p></li>
+<li><p><code>strstr.pro</code></p></li>
+</ul></li>
+<li><p><strong>Remarks:</strong></p>
+<ul>
+<li><p><strong>Note 1:</strong> The results of an inversion procedure tend to depend strongly on the choice of the the prior values of the model parameters. This function fulfills that purpose, but must know what model is being considered to generate appropriate prior values. For this reason, the model name (i.e., the name of the IDL procedure that implements it) must be recognized by this function. If a new model needs to be used, this function must be updated to add a code fragment in the <code>CASE</code> statement to properly handle the requirements of this new model.</p></li>
+</ul></li>
+<li><p><strong>Examples:</strong></p>
+<pre><code>IDL&gt; x = [-15.0, -10.0, -5.0, 0.0, 5.0, 7.5, $
+   10.0, 12.5, 15.0, 18.0, 20.0, 22.0, $
+   25.0, 30.0, 35.0, 40.0, 45.0, 50.0]
+IDL&gt; y = [0.32, 0.25, 0.32, 0.28, 0.30, 0.61, $
+   1.50, 2.00, 2.35, 2.45, 2.00, 1.62, $
+   1.20, 0.68, 0.22, 0.19, 0.23, 0.19]
+IDL&gt; model_p = &#39;PD_Gaus_P&#39;
+IDL&gt; rc = set_prior_dsf(x, y, model_p, params)
+IDL&gt; PRINT, &#39;params = &#39;, params
+params = 0.346667 1.52762 10.0000 3.50000 -1.57229 25.0000 4.00000</code></pre></li>
+<li><p><strong>References:</strong></p>
+<ul>
+<li><p>Michel M. Verstraete (2019) <em>User Manual for the <code>Phenology</code> package</em>.</p></li>
+</ul></li>
+<li><p><strong>Versioning:</strong></p>
+<ul>
+<li><p>2019&#8211;10&#8211;05: Version 1.0 &#8212; Initial public release.</p></li>
+<li><p>2019&#8211;11&#8211;08: Version 2.0.0 &#8212; Update the documentation and adopt the current coding standards.</p></li>
+<li><p>2019&#8211;11&#8211;18: Version 2.0.1 &#8212; Add the reference to the <em>User Manual</em>.</p></li>
+</ul></li>
+</ul>
+</body>
+</html>
