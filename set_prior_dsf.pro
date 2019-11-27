@@ -146,6 +146,12 @@ FUNCTION set_prior_dsf, $
    ;
    ;  *   2019–11–18: Version 2.0.1 — Add the reference to the _User
    ;      Manual_.
+   ;
+   ;  *   2019–11–27: Version 2.0.2 — Add tests to prevent a possible
+   ;      division by 0 in the calculations of the values of params[3] and
+   ;      params[6] when using either the PD_HyTg_P or the PD_Logi_P
+   ;      models, fix a bug in the computation of the initial downward
+   ;      slope of the PD_Logi_P model, and update the documentation.
    ;Sec-Lic
    ;  INTELLECTUAL PROPERTY RIGHTS
    ;
@@ -358,12 +364,12 @@ FUNCTION set_prior_dsf, $
    ;  Compute the mean 'low' value after the high period:
    mean_after = MEAN(y[after[0]:after[N_ELEMENTS(after) - 1]])
 
-   ; IF (verbose GT 2) THEN BEGIN
-   ;    fmt = '(A30, A)'
-   ;    PRINT, 'Mean before = ', strstr(mean_before), FORMAT = fmt
-   ;    PRINT, 'Mean during = ', strstr(mean_during), FORMAT = fmt
-   ;    PRINT, 'Mean after = ', strstr(mean_after), FORMAT = fmt
-   ; ENDIF
+   IF (verbose GT 2) THEN BEGIN
+      fmt = '(A30, A)'
+      PRINT, 'Mean before = ', strstr(mean_before), FORMAT = fmt
+      PRINT, 'Mean during = ', strstr(mean_during), FORMAT = fmt
+      PRINT, 'Mean after = ', strstr(mean_after), FORMAT = fmt
+   ENDIF
 
    ;  Set the values of the parameters common to all models.
    ;  params[0] is the base level of the double S-shaped function:
@@ -388,7 +394,6 @@ FUNCTION set_prior_dsf, $
    ;  estimated as 1/3 of the length of the period between the 'x' of the
    ;  first maximum value in 'during' and the last 'x' value in 'before':
          params[3] = (x_fst_max_y_during - lst_x_before) / 3.0
-         ;(fst_x_during - lst_x_before) / 3.0
 
    ;  params[5] is the phase of the second S-shaped function; in the case of
    ;  'PD_Gaus_P', this is the 'x' of the last high value in 'during':
@@ -399,8 +404,6 @@ FUNCTION set_prior_dsf, $
    ;  estimated as 1/3 of the length of the period between the first 'x' value
    ;  in 'after' and the 'x' of the last maximum value in 'during' :
          params[6] = (fst_x_after - x_lst_max_y_during) / 3.0
-         ;(lst_x_during - fst_x_after) / 3.0
-         ;
       END
       'PD_HyTg_P': BEGIN
 
@@ -413,8 +416,12 @@ FUNCTION set_prior_dsf, $
    ;  params[3] is the slope of the first S-shaped function; in the case of
    ;  'PD_HyTg_P', this is slope of the straight line between the last low
    ;  value in 'before' and the first high value in 'during':
-         params[3] = (fst_y_during - lst_y_before) / $
-            (fst_x_during - lst_x_before)
+         delta_x = fst_x_during - lst_x_before
+         IF (delta_x NE 0.0) THEN BEGIN
+            params[3] = (fst_y_during - lst_y_before) / delta_x
+         ENDIF ELSE BEGIN
+            params[3] = 1.0
+         ENDELSE
 
    ;  params[5] is the phase of the second S-shaped function; in the case of
    ;  'PD_HyTg_P', this is the 'x' value of the inflexion point, hence the
@@ -425,8 +432,12 @@ FUNCTION set_prior_dsf, $
    ;  params[6] is the slope of the first S-shaped function; in the case of
    ;  'PD_HyTg_P', this is slope of the straight line between the last high
    ;  value in 'during' and the first low value in 'after':
-         params[6] = ABS((lst_y_during - fst_y_after) / $
-            (lst_x_during - fst_x_after))
+         delta_x = lst_x_during - fst_x_after
+         IF (delta_x NE 0.0) THEN BEGIN
+            params[6] = ABS(lst_y_during - fst_y_after) / delta_x
+         ENDIF ELSE BEGIN
+            params[6] = 1.0
+         ENDELSE
       END
       'PD_Logi_P': BEGIN
 
@@ -437,9 +448,14 @@ FUNCTION set_prior_dsf, $
          params[2] = lst_x_before + ((fst_x_during - lst_x_before) / 2.0)
 
    ;  params[3] is the slope of the first S-shaped function; in the case of
-   ;  'PD_Logi_P', this is ...
-         params[3] = 2.0 * (fst_y_during - lst_y_before) / $
-            (fst_x_during - lst_x_before)
+   ;  'PD_Logi_P', this is twice the slope of the straight line between the
+   ;  last low value in 'before' and the first high value in 'during':
+         delta_x = fst_x_during - lst_x_before
+         IF (delta_x NE 0.0) THEN BEGIN
+            params[3] = 2.0 * (fst_y_during - lst_y_before) / delta_x
+         ENDIF ELSE BEGIN
+            params[3] = 1.0
+         ENDELSE
 
    ;  params[5] is the phase of the second S-shaped function; in the case of
    ;  'PD_Logi_P', this is the 'x' value of the inflexion point, hence the
@@ -448,10 +464,14 @@ FUNCTION set_prior_dsf, $
          params[5] = lst_x_during + ((fst_x_after - lst_x_during) / 2.0)
 
    ;  params[6] is the slope of the first S-shaped function; in the case of
-   ;  'PD_Logi_P', this is ...
-         params[6] = 2.0 * (fst_y_during - lst_y_before) / $
-            (fst_x_during - lst_x_before)
-
+   ;  'PD_Logi_P', this is twice the slope of the straight line between the
+   ;  last high value in 'during' and the first low value in 'after':
+         delta_x = lst_x_during - fst_x_after
+         IF (delta_x NE 0.0) THEN BEGIN
+            params[6] = 2.0 * (lst_y_during - fst_y_after) / delta_x
+         ENDIF ELSE BEGIN
+            params[6] = 1.0
+         ENDELSE
       END
       'PD_Sine_P': BEGIN
 
@@ -460,11 +480,11 @@ FUNCTION set_prior_dsf, $
          params[2] = lst_x_before
 
    ;  params[3] is the phase of the end of first S-shaped function; hence
-   ;  the first measurement during the high period:
+   ;  the first maximum measurement during the high period:
          params[3] = x_fst_max_y_during
 
    ;  params[5] is the phase of the start of second S-shaped function; hence
-   ;  the last measurement during the high period:
+   ;  the last maximum measurement during the high period:
          params[5] = x_lst_max_y_during
 
    ;  params[6] is the phase of the end of second S-shaped function; hence

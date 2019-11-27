@@ -73,9 +73,11 @@ FUNCTION plt_dsf, $
    ;  *   TO_X = to_x {FLOAT} [I] (Default value: MAX(x): The optional
    ;      largest value of x to be plotted.
    ;
-   ;  *   ITER = iter {INT} [I] (Default value: None): The number of
+   ;  *   ITER = iter {INT} [I] (Default value: 0): The number of
    ;      iterations accomplished when inverting the model against the
-   ;      data.
+   ;      data. A negative value of iter is interpreted as requiring to
+   ;      plot the prior situation, i.e., before the model inversion takes
+   ;      place.
    ;
    ;  *   CHISQ = chisq {FLOAT} [I] (Default value: None): The χ² value
    ;      expressing the degree of fitness between the model and the data.
@@ -194,8 +196,12 @@ FUNCTION plt_dsf, $
    ;      documentation standards, and switch to 3-parts version
    ;      identifiers; initial public release.
    ;
-   ;  *   2019–11–18: Version 2.0.1 — Update the txt annotations to the
+   ;  *   2019–11–18: Version 2.0.1 — Update the text annotations to the
    ;      plots and add the reference to the _User Manual_.
+   ;
+   ;  *   2019–11–26: Version 2.0.2 — Update the handling of the iter
+   ;      keyword parameter, correct a spelling mistake in the output
+   ;      plot, and update the documentation.
    ;Sec-Lic
    ;  INTELLECTUAL PROPERTY RIGHTS
    ;
@@ -371,7 +377,7 @@ FUNCTION plt_dsf, $
       ENDIF ELSE BEGIN
          f_str = ''
       ENDELSE
-      IF (iter EQ -1) THEN f_str = f_str + '_prior' ELSE f_str = f_str + '_post'
+      IF (iter LT 0) THEN f_str = f_str + '_prior' ELSE f_str = f_str + '_post'
       IF (KEYWORD_SET(params_str)) THEN BEGIN
          c_str = '_' + params_str.Replace(', ', '_')
       ENDIF ELSE BEGIN
@@ -461,14 +467,14 @@ FUNCTION plt_dsf, $
             /DATA, FONT_SIZE = 7)
 
    ;  Add the number of iterations:
-         IF (KEYWORD_SET(iter)) THEN BEGIN
+         IF (iter GE 0) THEN BEGIN
             xt_5 = from_x + 0.05 * (to_x - from_x)
             yt_5 = range_y[0] + 0.90 * (range_y[1] - range_y[0])
             IF (iter GE 0) THEN BEGIN
                t_5 = TEXT(xt_5, yt_5, '# iterations: ' + strstr(iter), $
                   /DATA, FONT_SIZE = 7)
             ENDIF ELSE BEGIN
-               t_5 = TEXT(xt_5, yt_5, 'Prior configutation.', $
+               t_5 = TEXT(xt_5, yt_5, 'Prior configuration.', $
                   /DATA, FONT_SIZE = 7)
             ENDELSE
          ENDIF

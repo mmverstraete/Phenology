@@ -101,6 +101,7 @@
 <li><p>2012&#8211;05&#8211;24: Version 1.0 &#8212; Initial public release.</p></li>
 <li><p>2019&#8211;11&#8211;06: Version 2.0.0 &#8212; Update the code to accept an arbitrary (user-provided) model to be fitted, update the documentation and adopt the current coding standards.</p></li>
 <li><p>2019&#8211;11&#8211;18: Version 2.0.1 &#8212; Update the code to optionally plot the model and the data with the prior and the posterior parameters, and add the reference to the <em>User Manual</em>.</p></li>
+<li><p>2019&#8211;11&#8211;27: Version 2.0.2 &#8212; Update the code to print the correct message for error condition 502.</p></li>
 </ul></li>
 </ul>
 <h2>pd_gaus_f</h2>
@@ -647,7 +648,7 @@ pder[5] =      0.142674</code></pre></li>
 <li><p><code>Y_DATA = y_data {FLOAT} [I] (Default value: None):</code> The optional ordinates of the data points.</p></li>
 <li><p><code>FROM_X = from_x {FLOAT} [I] (Default value: MIN(x):</code> The optional smallest value of <code>x</code> to be plotted.</p></li>
 <li><p><code>TO_X = to_x {FLOAT} [I] (Default value: MAX(x):</code> The optional largest value of <code>x</code> to be plotted.</p></li>
-<li><p><code>ITER = iter {INT} [I] (Default value: None):</code> The number of iterations accomplished when inverting the model against the data.</p></li>
+<li><p><code>ITER = iter {INT} [I] (Default value: 0):</code> The number of iterations accomplished when inverting the model against the data. A negative value of <code>iter</code> is interpreted as requiring to plot the prior situation, i.e., before the model inversion takes place.</p></li>
 <li><p><code>CHISQ = chisq {FLOAT} [I] (Default value: None):</code> The <span class="math inline"><em>&#967;</em><sup>2</sup></span> value expressing the degree of fitness between the model and the data.</p></li>
 <li><p><code>PLOT_IT = plot_it{INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) generating plots.</p></li>
 <li><p><code>PLOT_FOLDER = plot_folder {STRING} [I]:</code> The directory address of the output folder containing the plots, if different from the value implied by the default set by function <code>set_roots_vers.pro)</code> and the routine arguments.</p></li>
@@ -703,7 +704,8 @@ pd_gaus_f.pro, pd_hytg_f.pro, pd_logi_f.pro and pd_sine_f.pro.</code></pre></li>
 <ul>
 <li><p>2019&#8211;10&#8211;05: Version 1.0 &#8212; Initial release.</p></li>
 <li><p>2019&#8211;10&#8211;31: Version 2.0.0 &#8212; Adopt revised coding and documentation standards, and switch to 3-parts version identifiers; initial public release.</p></li>
-<li><p>2019&#8211;11&#8211;18: Version 2.0.1 &#8212; Update the txt annotations to the plots and add the reference to the <em>User Manual</em>.</p></li>
+<li><p>2019&#8211;11&#8211;18: Version 2.0.1 &#8212; Update the text annotations to the plots and add the reference to the <em>User Manual</em>.</p></li>
+<li><p>2019&#8211;11&#8211;26: Version 2.0.2 &#8212; Update the handling of the <code>iter</code> keyword parameter, correct a spelling mistake in the output plot, and update the documentation.</p></li>
 </ul></li>
 </ul>
 <h2>set_prior_dsf</h2>
@@ -776,6 +778,7 @@ params = 0.346667 1.52762 10.0000 3.50000 -1.57229 25.0000 4.00000</code></pre><
 <li><p>2019&#8211;10&#8211;05: Version 1.0 &#8212; Initial public release.</p></li>
 <li><p>2019&#8211;11&#8211;08: Version 2.0.0 &#8212; Update the documentation and adopt the current coding standards.</p></li>
 <li><p>2019&#8211;11&#8211;18: Version 2.0.1 &#8212; Add the reference to the <em>User Manual</em>.</p></li>
+<li><p>2019&#8211;11&#8211;27: Version 2.0.2 &#8212; Add tests to prevent a possible division by <code>0</code> in the calculations of the values of <code>params[3]</code> and <code>params[6]</code> when using either the <code>PD_HyTg_P</code> or the <code>PD_Logi_P</code> models, fix a bug in the computation of the initial downward slope of the <code>PD_Logi_P</code> model, and update the documentation.</p></li>
 </ul></li>
 </ul>
 </body>

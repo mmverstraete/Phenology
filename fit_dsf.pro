@@ -234,6 +234,9 @@ FUNCTION fit_dsf, $
    ;  *   2019–11–18: Version 2.0.1 — Update the code to optionally plot
    ;      the model and the data with the prior and the posterior
    ;      parameters, and add the reference to the _User Manual_.
+   ;
+   ;  *   2019–11–27: Version 2.0.2 — Update the code to print the correct
+   ;      message for error condition 502.
    ;Sec-Lic
    ;  INTELLECTUAL PROPERTY RIGHTS
    ;
@@ -491,8 +494,8 @@ FUNCTION fit_dsf, $
          2: BEGIN
             error_code = 502
             excpt_cond = 'Error ' + strstr(error_code) + ' in ' + $
-               rout_name + ': The inversion procedure did not converge ' + $
-               strstr(itmax) + 'after iterations.'
+               rout_name + ': The inversion procedure did not converge in ' + $
+               strstr(itmax) + ' iterations.'
             END
          ELSE: BEGIN
             error_code = 509
