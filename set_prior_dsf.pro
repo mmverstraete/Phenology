@@ -150,8 +150,8 @@ FUNCTION set_prior_dsf, $
    ;  *   2019–11–27: Version 2.0.2 — Add tests to prevent a possible
    ;      division by 0 in the calculations of the values of params[3] and
    ;      params[6] when using either the PD_HyTg_P or the PD_Logi_P
-   ;      models, fix a bug in the computation of the initial downward
-   ;      slope of the PD_Logi_P model, and update the documentation.
+   ;      models, fix a bug in the computation of the slopes of the
+   ;      PD_Logi_P model, and update the documentation.
    ;Sec-Lic
    ;  INTELLECTUAL PROPERTY RIGHTS
    ;
@@ -432,9 +432,9 @@ FUNCTION set_prior_dsf, $
    ;  params[6] is the slope of the first S-shaped function; in the case of
    ;  'PD_HyTg_P', this is slope of the straight line between the last high
    ;  value in 'during' and the first low value in 'after':
-         delta_x = lst_x_during - fst_x_after
+         delta_x = fst_x_after - lst_x_during
          IF (delta_x NE 0.0) THEN BEGIN
-            params[6] = ABS(lst_y_during - fst_y_after) / delta_x
+            params[6] = ABS(fst_y_after - lst_y_during) / delta_x
          ENDIF ELSE BEGIN
             params[6] = 1.0
          ENDELSE
@@ -466,9 +466,9 @@ FUNCTION set_prior_dsf, $
    ;  params[6] is the slope of the first S-shaped function; in the case of
    ;  'PD_Logi_P', this is twice the slope of the straight line between the
    ;  last high value in 'during' and the first low value in 'after':
-         delta_x = lst_x_during - fst_x_after
+         delta_x = fst_x_after - lst_x_during
          IF (delta_x NE 0.0) THEN BEGIN
-            params[6] = 2.0 * (lst_y_during - fst_y_after) / delta_x
+            params[6] = 2.0 * ABS(fst_y_after - lst_y_during) / delta_x
          ENDIF ELSE BEGIN
             params[6] = 1.0
          ENDELSE
