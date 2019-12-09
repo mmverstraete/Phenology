@@ -5,10 +5,13 @@ FUNCTION plt_dsf, $
    dsf_y, $
    F_TYPE = f_type, $
    PARAMS_STR = params_str, $
+   XTIME = xtime, $
    X_DATA = x_data, $
    Y_DATA = y_data, $
    FROM_X = from_x, $
    TO_X = to_x, $
+   FROM_Y = from_y, $
+   TO_Y = to_y, $
    ITER = iter, $
    CHISQ = chisq, $
    PLOT_IT = plot_it, $
@@ -31,8 +34,9 @@ FUNCTION plt_dsf, $
    ;
    ;  SYNTAX: rc = plt_dsf(x, fsf_y, ssf_y, dsf_y, $
    ;  F_TYPE = f_type, PARAMS_STR = params_str, $
-   ;  X_DATA = x_data, Y_DATA = y_data, $
+   ;  XTIME = xtime, X_DATA = x_data, Y_DATA = y_data, $
    ;  FROM_X = from_x, TO_X = to_x, $
+   ;  FROM_Y = from_y, TO_Y = to_y, $
    ;  ITER = iter, CHISQ = chisq, $
    ;  PLOT_IT = plot_it, PLOT_FOLDER = plot_folder, $
    ;  VERBOSE = verbose, DEBUG = debug, EXCPT_COND = excpt_cond)
@@ -61,6 +65,10 @@ FUNCTION plt_dsf, $
    ;      containing the numerical values of the function parameters, used
    ;      to generate the overall title of the plot.
    ;
+   ;  *   XTIME = xtime {INT} [I] (Default value: 0): Flag to enable (> 0)
+   ;      or skip (0) interpreting the values of the input positional
+   ;      parameter x as Julian dates.
+   ;
    ;  *   X_DATA = x_data {FLOAT} [I] (Default value: None): The optional
    ;      abscissas of the data points.
    ;
@@ -72,6 +80,12 @@ FUNCTION plt_dsf, $
    ;
    ;  *   TO_X = to_x {FLOAT} [I] (Default value: MAX(x): The optional
    ;      largest value of x to be plotted.
+   ;
+   ;  *   FROM_Y = from_y {FLOAT} [I] (Default value: MIN(y): The optional
+   ;      smallest value of y to be plotted.
+   ;
+   ;  *   TO_Y = to_y {FLOAT} [I] (Default value: MAX(y): The optional
+   ;      largest value of y to be plotted.
    ;
    ;  *   ITER = iter {INT} [I] (Default value: 0): The number of
    ;      iterations accomplished when inverting the model against the
@@ -202,6 +216,10 @@ FUNCTION plt_dsf, $
    ;  *   2019–11–26: Version 2.0.2 — Update the handling of the iter
    ;      keyword parameter, correct a spelling mistake in the output
    ;      plot, and update the documentation.
+   ;
+   ;  *   2019–12–06: Version 2.0.3 — Update the code to generate plots
+   ;      showing days, months and years (rather than Julian days) when
+   ;      the x axis is time.
    ;Sec-Lic
    ;  INTELLECTUAL PROPERTY RIGHTS
    ;
@@ -251,6 +269,7 @@ FUNCTION plt_dsf, $
    return_code = 0
 
    ;  Set the default values of flags and essential keyword parameters:
+   IF (KEYWORD_SET(xtime)) THEN xtime = 1 ELSE xtime = 0
    IF (KEYWORD_SET(plot_it)) THEN plot_it = 1 ELSE plot_it = 0
    IF (KEYWORD_SET(verbose)) THEN BEGIN
       IF (is_numeric(verbose)) THEN verbose = FIX(verbose) ELSE verbose = 0
@@ -386,20 +405,33 @@ FUNCTION plt_dsf, $
       plot_fname = 'Plot_dsf' + f_str + c_str + '_' + date + '.png'
       plot_fspec = plot_fpath + plot_fname
 
-   ;  Set the range of 'x' over which the function values should be plotted:
+   ;  Set the range of 'y' over which the function values should be plotted:
       min_val = MIN([fsf_y, ssf_y, dsf_y])
       IF (KEYWORD_SET(y_data)) THEN min_val = MIN([min_val, MIN(y_data)])
       max_val = MAX([fsf_y, ssf_y, dsf_y])
       IF (KEYWORD_SET(y_data)) THEN max_val = MAX([max_val, MAX(y_data)])
-      range_y = set_value_range(ROUND(min_val) - 1, ROUND(max_val) + 1, $
+      res = set_value_range(ROUND(min_val) - 1, ROUND(max_val) + 1, $
          DEBUG = debug, EXCPT_COND = excpt_cond)
+      IF (~KEYWORD_SET(from_y)) THEN from_y = res[0]
+      IF (~KEYWORD_SET(to_y)) THEN to_y = res[1]
+      range_y = [from_y, to_y]
 
    ;  Plot the first component:
+      IF (xtime) THEN BEGIN
+         xtu = ['Days', 'Months', 'Years']
+         xti = 'Time'
+      ENDIF ELSE BEGIN
+         xtu = ''
+         xti = 'x'
+      ENDELSE
       p_1 = PLOT( $
          x, $
          fsf_y, $
+         DIMENSION = [650, 600], $
+         POSITION = [0.15, 0.25, 0.9, 0.9], $
          XRANGE = [from_x, to_x], $
-         XTITLE = 'x', $
+         XTICKUNITS = xtu, $
+         XTITLE = xti, $
          YRANGE = range_y, $
          YTITLE = f_type, $
          YSTYLE = 1, $

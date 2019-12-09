@@ -12,7 +12,8 @@
 <li><p><strong>Purpose:</strong> This function serves as a wrapper to the IDL function <code>CURVEFIT</code>: it fits a user-supplied procedure <code>model_p</code> to a series of data points and optionally plots the results.</p></li>
 <li><p><strong>Algorithm:</strong> This function fits the user-supplied procedure <code>model_p</code> to a set of points defined by the input positional parameters <code>x</code> and <code>y</code>, given prior values of the model parameters <code>params</code>. Upon completion of the processing , this array contains the posterior values of those parameters.</p></li>
 <li><p><strong>Syntax:</strong> <code>rc = fit_dsf(x, y, model_p, params, $</code><br />
-<code>FROM_X = from_x, TO_X = to_x, $</code><br />
+<code>XTIME = xtime, FROM_X = from_x, TO_X = to_x, $</code><br />
+<code>FROM_Y = from_y, TO_Y = to_y, $</code><br />
 <code>ITMAX = itmax, ITER = iter, $</code><br />
 <code>WEIGHTS = weights, NODERIVATIVE = noderivative, $</code><br />
 <code>TOL = tol, CHISQ = chisq, $</code><br />
@@ -29,8 +30,11 @@
 </ul></li>
 <li><p><strong>Keyword parameters [Input/Output]:</strong></p>
 <ul>
+<li><p><code>XTIME = xtime {INT} [I] (Default value: 0):</code> Flag to enable (&gt; 0) or skip (0) interpreting the values of the input positional parameter <code>x</code> as Julian dates.</p></li>
 <li><p><code>FROM_X = from_x {FLOAT} [I]:</code> The smallest value of the independent variable (abscissa) to consider in the plotting of the results.</p></li>
 <li><p><code>TO_X = to_x {FLOAT} [I]:</code> The largest value of the independent variable (abscissa) to consider in the plotting of the results.</p></li>
+<li><p><code>FROM_Y = from_y {FLOAT} [I] (Default value: MIN(y):</code> The optional smallest value of <code>y</code> to be plotted.</p></li>
+<li><p><code>TO_Y = to_y {FLOAT} [I] (Default value: MAX(y):</code> The optional largest value of <code>y</code> to be plotted.</p></li>
 <li><p><code>ITMAX = itmax {INT} [I]:</code> The maximum allowed number of iterations in the inversion process.</p></li>
 <li><p><code>ITER = iter {INT} [O]:</code> The actual number of iterations in the inversion process.</p></li>
 <li><p><code>WEIGHTS = weights {FLOAT array} [I]:</code> The array of weights to be assigned to the measurements. If the standard deviation <code>STD</code> applicable to each measurement is known, then <code>weight = 1/STD</code>. If the measurement uncertainty is unknow, set all <code>weights</code> to <code>1.0</code>. Set the weight to <code>0.0</code> if a measurement should not be considered in the inversion process.</p></li>
@@ -102,6 +106,7 @@
 <li><p>2019&#8211;11&#8211;06: Version 2.0.0 &#8212; Update the code to accept an arbitrary (user-provided) model to be fitted, update the documentation and adopt the current coding standards.</p></li>
 <li><p>2019&#8211;11&#8211;18: Version 2.0.1 &#8212; Update the code to optionally plot the model and the data with the prior and the posterior parameters, and add the reference to the <em>User Manual</em>.</p></li>
 <li><p>2019&#8211;11&#8211;27: Version 2.0.2 &#8212; Update the code to print the correct message for error condition 502.</p></li>
+<li><p>2019&#8211;12&#8211;06: Version 2.0.3 &#8212; Update the code to include the keyword parameter <code>XTIME</code>, used by <code>plt_dsf.pro</code>, provide default values for <code>FROM_X</code> and <code>TO_X</code>, and add input keyword parameters <code>FROM_y</code> and <code>TO_Y</code>.</p></li>
 </ul></li>
 </ul>
 <h2>pd_gaus_f</h2>
@@ -628,8 +633,9 @@ pder[5] =      0.142674</code></pre></li>
 <li><p><strong>Algorithm:</strong> This function plots the traces of the 3 input positional parameters <code>fsf_y</code>, <code>ssf_y</code> and <code>dsf_y</code>, as a function of the input positional parameter <code>x</code>, or optionally over the alternative range <code>[from_x, to_x]</code>. If arrays of <code>x</code> and <code>y</code> data values are also provided, they are superinposed on the plot.</p></li>
 <li><p><strong>Syntax:</strong> <code>rc = plt_dsf(x, fsf_y, ssf_y, dsf_y, $</code><br />
 <code>F_TYPE = f_type, PARAMS_STR = params_str, $</code><br />
-<code>X_DATA = x_data, Y_DATA = y_data, $</code><br />
+<code>XTIME = xtime, X_DATA = x_data, Y_DATA = y_data, $</code><br />
 <code>FROM_X = from_x, TO_X = to_x, $</code><br />
+<code>FROM_Y = from_y, TO_Y = to_y, $</code><br />
 <code>ITER = iter, CHISQ = chisq, $</code><br />
 <code>PLOT_IT = plot_it, PLOT_FOLDER = plot_folder, $</code><br />
 <code>VERBOSE = verbose, DEBUG = debug, EXCPT_COND = excpt_cond)</code></p></li>
@@ -644,10 +650,13 @@ pder[5] =      0.142674</code></pre></li>
 <ul>
 <li><p><code>F_TYPE = f_type {STRING} [I]:</code> The optional abbreviated name (acronym) of the double S-shaped function, used to generate the ordinate axis and overall titles of the plot.</p></li>
 <li><p><code>PARAMS_STR = params_str {STRING} [I]:</code> The optional string containing the numerical values of the function parameters, used to generate the overall title of the plot.</p></li>
+<li><p><code>XTIME = xtime {INT} [I] (Default value: 0):</code> Flag to enable (&gt; 0) or skip (0) interpreting the values of the input positional parameter <code>x</code> as Julian dates.</p></li>
 <li><p><code>X_DATA = x_data {FLOAT} [I] (Default value: None):</code> The optional abscissas of the data points.</p></li>
 <li><p><code>Y_DATA = y_data {FLOAT} [I] (Default value: None):</code> The optional ordinates of the data points.</p></li>
 <li><p><code>FROM_X = from_x {FLOAT} [I] (Default value: MIN(x):</code> The optional smallest value of <code>x</code> to be plotted.</p></li>
 <li><p><code>TO_X = to_x {FLOAT} [I] (Default value: MAX(x):</code> The optional largest value of <code>x</code> to be plotted.</p></li>
+<li><p><code>FROM_Y = from_y {FLOAT} [I] (Default value: MIN(y):</code> The optional smallest value of <code>y</code> to be plotted.</p></li>
+<li><p><code>TO_Y = to_y {FLOAT} [I] (Default value: MAX(y):</code> The optional largest value of <code>y</code> to be plotted.</p></li>
 <li><p><code>ITER = iter {INT} [I] (Default value: 0):</code> The number of iterations accomplished when inverting the model against the data. A negative value of <code>iter</code> is interpreted as requiring to plot the prior situation, i.e., before the model inversion takes place.</p></li>
 <li><p><code>CHISQ = chisq {FLOAT} [I] (Default value: None):</code> The <span class="math inline"><em>&#967;</em><sup>2</sup></span> value expressing the degree of fitness between the model and the data.</p></li>
 <li><p><code>PLOT_IT = plot_it{INT} [I] (Default value: 0):</code> Flag to activate (<code>1</code>) or skip (<code>0</code>) generating plots.</p></li>
@@ -706,6 +715,7 @@ pd_gaus_f.pro, pd_hytg_f.pro, pd_logi_f.pro and pd_sine_f.pro.</code></pre></li>
 <li><p>2019&#8211;10&#8211;31: Version 2.0.0 &#8212; Adopt revised coding and documentation standards, and switch to 3-parts version identifiers; initial public release.</p></li>
 <li><p>2019&#8211;11&#8211;18: Version 2.0.1 &#8212; Update the text annotations to the plots and add the reference to the <em>User Manual</em>.</p></li>
 <li><p>2019&#8211;11&#8211;26: Version 2.0.2 &#8212; Update the handling of the <code>iter</code> keyword parameter, correct a spelling mistake in the output plot, and update the documentation.</p></li>
+<li><p>2019&#8211;12&#8211;06: Version 2.0.3 &#8212; Update the code to generate plots showing days, months and years (rather than Julian days) when the <code>x</code> axis is time.</p></li>
 </ul></li>
 </ul>
 <h2>set_prior_dsf</h2>

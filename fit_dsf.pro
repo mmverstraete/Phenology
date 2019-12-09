@@ -3,8 +3,11 @@ FUNCTION fit_dsf, $
    y, $
    model_p, $
    params, $
+   XTIME = xtime, $
    FROM_X = from_x, $
    TO_X = to_x, $
+   FROM_Y = from_y, $
+   TO_Y = to_y, $
    ITMAX = itmax, $
    ITER = iter, $
    WEIGHTS = weights, $
@@ -32,7 +35,8 @@ FUNCTION fit_dsf, $
    ;  those parameters.
    ;
    ;  SYNTAX: rc = fit_dsf(x, y, model_p, params, $
-   ;  FROM_X = from_x, TO_X = to_x, $
+   ;  XTIME = xtime, FROM_X = from_x, TO_X = to_x, $
+   ;  FROM_Y = from_y, TO_Y = to_y, $
    ;  ITMAX = itmax, ITER = iter, $
    ;  WEIGHTS = weights, NODERIVATIVE = noderivative, $
    ;  TOL = tol, CHISQ = chisq, $
@@ -58,12 +62,22 @@ FUNCTION fit_dsf, $
    ;
    ;  KEYWORD PARAMETERS [INPUT/OUTPUT]:
    ;
+   ;  *   XTIME = xtime {INT} [I] (Default value: 0): Flag to enable (> 0)
+   ;      or skip (0) interpreting the values of the input positional
+   ;      parameter x as Julian dates.
+   ;
    ;  *   FROM_X = from_x {FLOAT} [I]: The smallest value of the
    ;      independent variable (abscissa) to consider in the plotting of
    ;      the results.
    ;
    ;  *   TO_X = to_x {FLOAT} [I]: The largest value of the independent
    ;      variable (abscissa) to consider in the plotting of the results.
+   ;
+   ;  *   FROM_Y = from_y {FLOAT} [I] (Default value: MIN(y): The optional
+   ;      smallest value of y to be plotted.
+   ;
+   ;  *   TO_Y = to_y {FLOAT} [I] (Default value: MAX(y): The optional
+   ;      largest value of y to be plotted.
    ;
    ;  *   ITMAX = itmax {INT} [I]: The maximum allowed number of
    ;      iterations in the inversion process.
@@ -237,6 +251,11 @@ FUNCTION fit_dsf, $
    ;
    ;  *   2019–11–27: Version 2.0.2 — Update the code to print the correct
    ;      message for error condition 502.
+   ;
+   ;  *   2019–12–06: Version 2.0.3 — Update the code to include the
+   ;      keyword parameter XTIME, used by plt_dsf.pro, provide default
+   ;      values for FROM_X and TO_X, and add input keyword parameters
+   ;      FROM_y and TO_Y.
    ;Sec-Lic
    ;  INTELLECTUAL PROPERTY RIGHTS
    ;
@@ -435,6 +454,11 @@ FUNCTION fit_dsf, $
    ;  Reset the number of data items in the input positional parameters 'x':
    n_pts_x = N_ELEMENTS(x)
 
+   ;  Set the range of the independent variable x to consider, if it is not
+   ;  specified explicitly:
+   IF (~KEYWORD_SET(from_x)) THEN from_x = MIN(x)
+   IF (~KEYWORD_SET(to_x)) THEN to_x = MAX(x)
+
    ;  Set the weights if they have not been specified:
    IF (~KEYWORD_SET(weights)) THEN $
       weights = MAKE_ARRAY(n_pts_x, /FLOAT, VALUE = 1.0)
@@ -470,8 +494,9 @@ FUNCTION fit_dsf, $
 
       rc = plt_dsf(xp, pdsf1, pdsf2, yp, $
          F_TYPE = model_f, PARAMS_STR = params_str, $
-         X_DATA = x, Y_DATA = y, $
+         XTIME = xtime, X_DATA = x, Y_DATA = y, $
          FROM_X = from_x, TO_X = to_x, $
+         FROM_Y = from_y, TO_Y = to_y, $
          ITER = iter, CHISQ = chisq, $
          PLOT_IT = plot_it, PLOT_FOLDER = plot_folder, $
          VERBOSE = verbose, DEBUG = debug, EXCPT_COND = excpt_cond)
@@ -520,8 +545,9 @@ FUNCTION fit_dsf, $
 
       rc = plt_dsf(xp, pdsf1, pdsf2, yp, $
          F_TYPE = model_f, PARAMS_STR = params_str, $
-         X_DATA = x, Y_DATA = y, $
+         XTIME = xtime, X_DATA = x, Y_DATA = y, $
          FROM_X = from_x, TO_X = to_x, $
+         FROM_Y = from_y, TO_Y = to_y, $
          ITER = iter, CHISQ = chisq, $
          PLOT_IT = plot_it, PLOT_FOLDER = plot_folder, $
          VERBOSE = verbose, DEBUG = debug, EXCPT_COND = excpt_cond)
